@@ -389,11 +389,11 @@ public:
 };
 
 // Fraility - 224509
-class aura_dh_fraility : public AuraScript
+/*class aura_dh_fraility : public AuraScript
 {
     PrepareAuraScript(aura_dh_fraility);
 
-    bool Validate(SpellInfo const* /*spellInfo*/) override
+    bool Validate(SpellInfo const* /*spellInfo*//*) override
     {
         return ValidateSpellInfo({ SPELL_DH_SPIRIT_BOMB_HEAL });
     }
@@ -404,7 +404,8 @@ class aura_dh_fraility : public AuraScript
         if (!caster)
             return;
 
-        int32 healAmount = CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), GetEffect(EFFECT_0)->GetBaseAmount);
+        //int32 healAmount = CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), GetEffect(EFFECT_0)->GetBaseAmount);
+        int32 healAmount = CalculatePct(eventInfo.GetDamageInfo()->GetDamage, GetEffect(EFFECT_0)->GetBaseAmount);
         caster->CastCustomSpell(caster, SPELL_DH_SPIRIT_BOMB_HEAL, &healAmount, NULL, NULL, true);
     }
 
@@ -412,7 +413,7 @@ class aura_dh_fraility : public AuraScript
     {
         OnEffectProc += AuraEffectProcFn(aura_dh_fraility::HandleProc, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
-};
+};*/
 
 // Spirit Bomb - 247454
 class spell_dh_spirit_bomb : public SpellScript
@@ -2973,7 +2974,7 @@ void AddSC_demon_hunter_spell_scripts()
     new spell_dh_fiery_brand_absorb();
     new spell_dh_fiery_brand_dot();
     new spell_dh_fracture();
-    RegisterAuraScript(aura_dh_fraility);
+   // RegisterAuraScript(aura_dh_fraility);
     new spell_dh_glide();
     new spell_dh_immolation_aura();
     new spell_dh_immolation_aura_damage();

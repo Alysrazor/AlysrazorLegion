@@ -1690,7 +1690,9 @@ public:
                     uint32 runesState = player->GetRunesState();
                     player->SetRuneCooldown((*itr), 0);
                     if ((player->GetRunesState() & ~runesState) != 0)
-                        player->AddRunePower((player->GetRunesState() & ~runesState));
+                        player->UpdateAllRunesRegen();
+                        //player->AddRunePower((player->GetRunesState() & ~runesState));
+                    
 
                     runes.erase(itr);
                 }
@@ -2132,7 +2134,7 @@ public:
 };
 
 // Gorefiend's Grasp - 108199
-class spell_dk_gorefiends_grasp : public SpellScriptLoader
+/*class spell_dk_gorefiends_grasp : public SpellScriptLoader
 {
 public:
     spell_dk_gorefiends_grasp() : SpellScriptLoader("spell_dk_gorefiends_grasp") { }
@@ -2141,7 +2143,7 @@ public:
     {
         PrepareSpellScript(spell_dk_gorefiends_grasp_SpellScript);
 
-        void HandleScript(SpellEffIndex /*effIndex*/)
+        void HandleScript(SpellEffIndex /*effIndex*//*)
         {
             if (Player* _player = GetCaster()->ToPlayer())
             {
@@ -2190,7 +2192,7 @@ public:
     {
         return new spell_dk_gorefiends_grasp_SpellScript();
     }
-};
+};*/
 
 //55233 Vampiric Blood
 class spell_dk_vampiric_blood : public SpellScriptLoader
@@ -2531,7 +2533,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_ghoul_explode();
     new spell_dk_glyph_of_deaths_embrace();
     new spell_dk_glyph_of_runic_power();
-    new spell_dk_gorefiends_grasp();
+    //new spell_dk_gorefiends_grasp();
     RegisterSpellScript(spell_dk_howling_blast);
     RegisterSpellScript(spell_dk_howling_blast_aoe);
     new spell_dk_icebound_fortitude();
