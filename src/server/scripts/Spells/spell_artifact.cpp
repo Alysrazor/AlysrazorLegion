@@ -88,7 +88,6 @@ public:
 
 			PreventDefaultAction();
 			player->RemoveTemporarySpell(SPELL_DRUID_NEW_MOON);
-			//player->RemoveTemporarySpell(SPELL_DRUID_NEW_MOON);
 		}
 
 		void Register() override
@@ -114,8 +113,7 @@ class spell_arti_dru_new_moon : public SpellScript
 		if (!caster)
 			return;
 
-		caster->RemoveAurasDueToSpell(SPELL_DRUID_FULL_MOON_OVERRIDE);
-		caster->CastSpell(caster, SPELL_DRUID_NEW_MOON_OVERRIDE, true);
+		caster->AddAura(SPELL_DRUID_NEW_MOON_OVERRIDE, caster);
 	}
 
 	void Register() override
@@ -140,8 +138,7 @@ class spell_arti_dru_half_moon : public SpellScript
 		if (!caster)
 			return;
 
-		caster->RemoveAurasDueToSpell(SPELL_DRUID_NEW_MOON_OVERRIDE);
-		caster->CastSpell(caster, SPELL_DRUID_HALF_MOON_OVERRIDE, true);
+		caster->AddAura(SPELL_DRUID_HALF_MOON_OVERRIDE, caster);
 	}
 
 	void Register() override
@@ -167,7 +164,7 @@ class spell_arti_dru_full_moon : public SpellScript
 			return;
 
 		caster->RemoveAurasDueToSpell(SPELL_DRUID_HALF_MOON_OVERRIDE);
-		caster->CastSpell(caster, SPELL_DRUID_FULL_MOON_OVERRIDE);
+		caster->RemoveAurasDueToSpell(SPELL_DRUID_NEW_MOON_OVERRIDE);
 	}
 
 	void Register() override
