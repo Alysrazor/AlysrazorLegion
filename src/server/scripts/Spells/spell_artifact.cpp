@@ -50,6 +50,7 @@ enum ScytheOfEluneSpells
 	SPELL_DRUID_FULL_MOON              = 202771,
 	SPELL_DRUID_FULL_MOON_OVERRIDE     = 202789,
 	///Artefact Trades
+	SPELL_DRUID_CELESTIA_ALIGNMENT     = 194223,
 	SPELL_DRUID_MOON_AND_STARS         = 202940,
 	SPELL_DRUID_MOON_AND_STARS_BUFF    = 202941,
 };
@@ -75,7 +76,6 @@ public:
 			if (!player)
 				return;
 
-			PreventDefaultAction();
 			player->AddTemporarySpell(SPELL_DRUID_NEW_MOON);
 
 		}
@@ -86,7 +86,6 @@ public:
 			if (!player)
 				return;
 
-			PreventDefaultAction();
 			player->RemoveTemporarySpell(SPELL_DRUID_NEW_MOON);
 		}
 
@@ -109,11 +108,9 @@ class spell_arti_dru_new_moon : public SpellScript
 
 	void RemoveOverride()
 	{
-		Unit* caster = GetCaster();
-		if (!caster)
-			return;
+		Player* player = GetCaster()->ToPlayer();
 
-		caster->AddAura(SPELL_DRUID_NEW_MOON_OVERRIDE, caster);
+		player->AddAura(SPELL_DRUID_NEW_MOON_OVERRIDE, player);
 	}
 
 	void Register() override
@@ -134,11 +131,9 @@ class spell_arti_dru_half_moon : public SpellScript
 
 	void RemoveOverride()
 	{
-		Unit* caster = GetCaster();
-		if (!caster)
-			return;
+		Player* player = GetCaster()->ToPlayer();
 
-		caster->AddAura(SPELL_DRUID_HALF_MOON_OVERRIDE, caster);
+		player->AddAura(SPELL_DRUID_HALF_MOON_OVERRIDE, player);
 	}
 
 	void Register() override
@@ -159,12 +154,10 @@ class spell_arti_dru_full_moon : public SpellScript
 
 	void RemoveOverride()
 	{
-		Unit* caster = GetCaster();
-		if (!caster)
-			return;
-
-		caster->RemoveAurasDueToSpell(SPELL_DRUID_HALF_MOON_OVERRIDE);
-		caster->RemoveAurasDueToSpell(SPELL_DRUID_NEW_MOON_OVERRIDE);
+		Player* player = GetCaster()->ToPlayer();
+		
+		player->RemoveAurasDueToSpell(SPELL_DRUID_HALF_MOON_OVERRIDE);
+		player->RemoveAurasDueToSpell(SPELL_DRUID_NEW_MOON_OVERRIDE);
 	}
 
 	void Register() override
@@ -189,28 +182,29 @@ public:
 
 		void HandleAfterCast()
 		{
-			Unit* caster = GetCaster();
-			if (!caster)
-				return;
+			Player* player = GetCaster()->ToPlayer();
 
 			uint32 druidDamageSpells;
-
-			switch (druidDamageSpells)
+			
+			while (player->HasAura(SPELL_DRUID_CELESTIA_ALIGNMENT))
 			{
-			   case SPELL_DRUID_FULL_MOON:
-			   case SPELL_DRUID_HALF_MOON:
-			   case SPELL_DRUID_NEW_MOON:
-			   case SPELL_DRUID_LUNAR_STRIKE:
-			   case SPELL_DRUID_SOLAR_WRATH:
-			   case SPELL_DRUID_MOONFIRE:
-			   case SPELL_DRUID_STARSURGE:
-			   case SPELL_DRUID_SUNFIRE:
-				   caster->AddAura(SPELL_DRUID_MOON_AND_STARS_BUFF, caster);
-				   break;
+				
+               switch (druidDamageSpells)
+			   {
+			      case SPELL_DRUID_FULL_MOON:
+			      case SPELL_DRUID_HALF_MOON:
+			      case SPELL_DRUID_NEW_MOON:
+			      case SPELL_DRUID_LUNAR_STRIKE:
+			      case SPELL_DRUID_SOLAR_WRATH:
+			      case SPELL_DRUID_MOONFIRE:
+			      case SPELL_DRUID_STARSURGE:
+			      case SPELL_DRUID_SUNFIRE:
+				       player->AddAura(SPELL_DRUID_MOON_AND_STARS_BUFF, player);
+				  break;
 			   default:
 				   break;
-			}
-		}
+			   }
+		   }
 
 		void Register() override
 		{
