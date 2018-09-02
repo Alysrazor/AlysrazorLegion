@@ -180,31 +180,32 @@ public:
 			return ValidateSpellInfo({ SPELL_DRUID_MOON_AND_STARS, SPELL_DRUID_MOON_AND_STARS_BUFF });
 		}
 
-		void HandleAfterCast()
-		{
-			Player* player = GetCaster()->ToPlayer();
+        void HandleAfterCast()
+        {
+            Player* player = GetCaster()->ToPlayer();
 
-			uint32 druidDamageSpells;
-			
-			while (player->HasAura(SPELL_DRUID_CELESTIA_ALIGNMENT))
-			{
-				
-               switch (druidDamageSpells)
-			   {
-			      case SPELL_DRUID_FULL_MOON:
-			      case SPELL_DRUID_HALF_MOON:
-			      case SPELL_DRUID_NEW_MOON:
-			      case SPELL_DRUID_LUNAR_STRIKE:
-			      case SPELL_DRUID_SOLAR_WRATH:
-			      case SPELL_DRUID_MOONFIRE:
-			      case SPELL_DRUID_STARSURGE:
-			      case SPELL_DRUID_SUNFIRE:
-				       player->AddAura(SPELL_DRUID_MOON_AND_STARS_BUFF, player);
-				  break;
-			   default:
-				   break;
-			   }
-		   }
+            uint32 druidDamageSpells;
+
+            while (player->HasAura(SPELL_DRUID_CELESTIA_ALIGNMENT))
+            {
+
+                switch (druidDamageSpells)
+                {
+                    case SPELL_DRUID_FULL_MOON:
+                    case SPELL_DRUID_HALF_MOON:
+                    case SPELL_DRUID_NEW_MOON:
+                    case SPELL_DRUID_LUNAR_STRIKE:
+                    case SPELL_DRUID_SOLAR_WRATH:
+                    case SPELL_DRUID_MOONFIRE:
+                    case SPELL_DRUID_STARSURGE:
+                    case SPELL_DRUID_SUNFIRE:
+                       player->AddAura(SPELL_DRUID_MOON_AND_STARS_BUFF, player);
+                    break;
+                  default:
+                    break;
+                }
+            };
+        }
 
 		void Register() override
 		{
