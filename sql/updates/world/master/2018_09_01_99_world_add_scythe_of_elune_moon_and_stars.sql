@@ -1,0 +1,1 @@
+INSERT INTO `spell_script_names` VALUES (202940, 'spell_arti_dru_moon_and_stars');
