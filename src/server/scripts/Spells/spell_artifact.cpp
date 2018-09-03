@@ -33,11 +33,11 @@
 
 enum DamageDruidSpells
 {
-	SPELL_DRUID_SOLAR_WRATH = 190984,
-	SPELL_DRUID_LUNAR_STRIKE = 194153,
-	SPELL_DRUID_STARSURGE = 78674,
-	SPELL_DRUID_MOONFIRE = 8921,
-	SPELL_DRUID_SUNFIRE = 93402,
+	SPELL_DRUID_SOLAR_WRATH            = 190984,
+	SPELL_DRUID_LUNAR_STRIKE           = 194153,
+	SPELL_DRUID_STARSURGE              = 78674,
+	SPELL_DRUID_MOONFIRE               = 8921,
+	SPELL_DRUID_SUNFIRE                = 93402,
 };
 enum ScytheOfEluneSpells
 {
@@ -76,7 +76,7 @@ public:
 			if (!player)
 				return;
 
-			player->AddTemporarySpell(SPELL_DRUID_NEW_MOON);
+			player->LearnSpell(SPELL_DRUID_NEW_MOON, true);
 
 		}
 
@@ -86,7 +86,7 @@ public:
 			if (!player)
 				return;
 
-			player->RemoveTemporarySpell(SPELL_DRUID_NEW_MOON);
+			player->RemoveSpell(SPELL_DRUID_NEW_MOON);
 		}
 
 		void Register() override
@@ -171,51 +171,58 @@ class spell_arti_dru_moon_and_stars : public SpellScriptLoader
 public:
 	spell_arti_dru_moon_and_stars() : SpellScriptLoader("spell_arti_dru_moon_and_stars") { }
 
-	class spell_arti_dru_moon_and_stars_SpellScript : public SpellScript
-	{
-		PrepareSpellScript(spell_arti_dru_moon_and_stars_SpellScript);
+    class spell_arti_dru_solar_wrath : public SpellScript
+    {
+        PrepareSpellScript(spell_arti_dru_solar_wrath);
 
-		bool Validate(SpellInfo const* /*spellInfo*/) override
-		{
-			return ValidateSpellInfo({ SPELL_DRUID_MOON_AND_STARS, SPELL_DRUID_MOON_AND_STARS_BUFF });
-		}
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo({ SPELL_DRUID_SOLAR_WRATH, SPELL_DRUID_MOON_AND_STARS_BUFF });
+        }
 
         void HandleAfterCast()
         {
-            Player* player = GetCaster()->ToPlayer();
+            Unit* caster = GetCaster();
+            if (!caster)
+                return;
 
-            uint32 druidDamageSpells;
-
-            while (player->HasAura(SPELL_DRUID_CELESTIA_ALIGNMENT))
-            {
-
-                switch (druidDamageSpells)
-                {
-                    case SPELL_DRUID_FULL_MOON:
-                    case SPELL_DRUID_HALF_MOON:
-                    case SPELL_DRUID_NEW_MOON:
-                    case SPELL_DRUID_LUNAR_STRIKE:
-                    case SPELL_DRUID_SOLAR_WRATH:
-                    case SPELL_DRUID_MOONFIRE:
-                    case SPELL_DRUID_STARSURGE:
-                    case SPELL_DRUID_SUNFIRE:
-                       player->AddAura(SPELL_DRUID_MOON_AND_STARS_BUFF, player);
-                    break;
-                  default:
-                    break;
-                }
-            };
+            caster->AddAura(SPELL_DRUID_MOON_AND_STARS_BUFF,caster);
         }
 
-		void Register() override
-		{
-			AfterCast += SpellCastFn(spell_arti_dru_moon_and_stars_SpellScript::HandleAfterCast);
-		}
-	};
+        void Register() override
+        {
+            AfterCast += SpellCastFn(spell_arti_dru_solar_wrath::HandleAfterCast);
+        }
+    };
+
+    class spell_arti_dru_lunar_strike : public SpellScript
+    {
+        PrepareSpellScript(spell_arti_dru_lunar_strike);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo({ SPELL_DRUID_LUNAR_STRIKE, SPELL_DRUID_MOON_AND_STARS_BUFF });
+        }
+
+        void HandleAfterCast()
+        {
+            Unit* caster = GetCaster();
+            if (!caster)
+                return;
+
+            caster->AddAura(SPELL_DRUID_MOON_AND_STARS_BUFF, caster);
+        }
+
+        void Register() override
+        {
+            AfterCast += SpellCastFn(spell_arti_dru_lunar_strike::HandleAfterCast);
+        }
+    };
 
 	SpellScript* GetSpellScript() const override
 	{
-		return new spell_arti_dru_moon_and_stars_SpellScript();
+		return new spell_arti_dru_solar_wrath();
+        return new spell_arti_dru_lunar_strike();
 	}
 };
 void AddSC_spell_artifact()
