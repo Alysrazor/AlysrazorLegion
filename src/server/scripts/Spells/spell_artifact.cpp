@@ -76,17 +76,12 @@ public:
 			if (!player)
 				return;
 			
-			if (!player->HasAura(SPELL_DRUID_NEW_MOON_ADD))
-			{
-				player->AddAura(SPELL_DRUID_NEW_MOON_ADD, player);
-				player->LearnSpell(SPELL_DRUID_NEW_MOON, true);
-				return true;
-			}
-			return false;
-				
-
+            if (!player->HasAura(SPELL_DRUID_NEW_MOON_ADD))
+            {
+                player->AddAura(SPELL_DRUID_NEW_MOON_ADD, player);
+                player->LearnSpell(SPELL_DRUID_NEW_MOON, true);
+            }
 			//player->LearnSpell(SPELL_DRUID_NEW_MOON, true);
-
 		}
 
 		void HandleRemove(AuraEffect const* /*aurEffect*/, AuraEffectHandleModes /*mode*/)
@@ -99,9 +94,7 @@ public:
 			{
 				player->RemoveAurasDueToSpell(SPELL_DRUID_NEW_MOON_ADD);
 				player->RemoveSpell(SPELL_DRUID_NEW_MOON);
-				return true;
 			}
-			return false;
 			//player->RemoveSpell(SPELL_DRUID_NEW_MOON);
 		}
 
@@ -116,7 +109,7 @@ public:
 class spell_arti_dru_new_moon : public SpellScriptLoader
 {
 public:
-      spell_arti_dru_new_moon_SpellScript() : SpellScriptLoader("spell_arti_dru_new_moon") { }
+      spell_arti_dru_new_moon() : SpellScriptLoader("spell_arti_dru_new_moon") { }
 	  
 	  
       class spell_arti_dru_new_moon_SpellScript : public SpellScript
@@ -156,7 +149,7 @@ public:
 	 
      class spell_arti_dru_half_moon_SpellScript : public SpellScript
      {
-	     PrepareSpellScript(spell_arti_dru_half_moon);
+	     PrepareSpellScript(spell_arti_dru_half_moon_SpellScript);
 
 	     bool Validate(SpellInfo const* /*spellInfo*/) override
 	     {
