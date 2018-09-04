@@ -747,31 +747,31 @@ public:
 };
 
 //  78674 - Starsurge
-class spell_dru_starsurge : public SpellScriptLoader
-{
-public: 
-	 spell_dru_starsurge() : SpellScriptLoader("spell_dru_starsurge") { }
-	 
-	 class spell_dru_starsurge_SpellScript : public SpellScript
-	 {
-		 PrepareSpellScript(spell_dru_starsurge_SpellScript);
-		 
-		 void HandleOnCast()
-		 {
-			 if (!GetCaster()->HasAura(SPELL_DRUID_STARSURGE_RANK_2))
-		 }
-	 
-	     void Register()
-		 {
-			 AfterCast += SpellCastFn(spell_dru_starsurge_SpellScript::HandleOnCast);
-		 }
-	 };
-	 
-	 SpellScript* GetSpellScript() const override
-	 {
-		 return new spell_dru_starsurge_SpellScript();
-	 }
-};
+//class spell_dru_starsurge : public SpellScriptLoader
+//{
+//public: 
+//	 spell_dru_starsurge() : SpellScriptLoader("spell_dru_starsurge") { }
+//	 
+//	 class spell_dru_starsurge_SpellScript : public SpellScript
+//	 {
+//		 PrepareSpellScript(spell_dru_starsurge_SpellScript);
+//		 
+//		 void HandleOnCast()
+//		 {
+//			 if (!GetCaster()->HasAura(SPELL_DRUID_STARSURGE_RANK_2))
+//		 }
+//	 
+//	     void Register()
+//		 {
+//			 AfterCast += SpellCastFn(spell_dru_starsurge_SpellScript::HandleOnCast);
+//		 }
+//	 };
+//	 
+//	 SpellScript* GetSpellScript() const override
+//	 {
+//		 return new spell_dru_starsurge_SpellScript();
+//	 }
+//};
 
 //  93402 - Sunfire
 class spell_dru_sunfire : public SpellScriptLoader
