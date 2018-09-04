@@ -75,8 +75,17 @@ public:
 			Player* player = GetCaster()->ToPlayer();
 			if (!player)
 				return;
+			
+			if (!player->HasAura(SPELL_DRUID_NEW_MOON_ADD))
+			{
+				player->AddAura(SPELL_DRUID_NEW_MOON_ADD, player);
+				player->LearnSpell(SPELL_DRUID_NEW_MOON, true);
+				return true;
+			}
+			return false;
+				
 
-			player->LearnSpell(SPELL_DRUID_NEW_MOON, true);
+			//player->LearnSpell(SPELL_DRUID_NEW_MOON, true);
 
 		}
 
@@ -86,7 +95,14 @@ public:
 			if (!player)
 				return;
 
-			player->RemoveSpell(SPELL_DRUID_NEW_MOON);
+			if (player->HasAura(SPELL_DRUID_NEW_MOON_ADD))
+			{
+				player->RemoveAurasDueToSpell(SPELL_DRUID_NEW_MOON_ADD);
+				player->RemoveSpell(SPELL_DRUID_NEW_MOON);
+				return true;
+			}
+			return false;
+			//player->RemoveSpell(SPELL_DRUID_NEW_MOON);
 		}
 
 		void Register() override
@@ -97,137 +113,173 @@ public:
 	};
 };
 
-class spell_arti_dru_new_moon : public SpellScript
+class spell_arti_dru_new_moon : public SpellScriptLoader
 {
-	PrepareSpellScript(spell_arti_dru_new_moon);
+public:
+      spell_arti_dru_new_moon_SpellScript() : SpellScriptLoader("spell_arti_dru_new_moon") { }
+	  
+	  
+      class spell_arti_dru_new_moon_SpellScript : public SpellScript
+      {
+	      PrepareSpellScript(spell_arti_dru_new_moon_SpellScript);
 
-	bool Validate(SpellInfo const* /*spellInfo*/) override
-	{
-		return ValidateSpellInfo({ SPELL_DRUID_NEW_MOON, SPELL_DRUID_NEW_MOON_OVERRIDE });
-	}
+	      bool Validate(SpellInfo const* /*spellInfo*/) override
+	      {
+		    return ValidateSpellInfo({ SPELL_DRUID_NEW_MOON, SPELL_DRUID_NEW_MOON_OVERRIDE });
+	      }
 
-	void RemoveOverride()
-	{
-		Player* player = GetCaster()->ToPlayer();
+	      void RemoveOverride()
+	      {
+		     Player* player = GetCaster()->ToPlayer();
 
-		player->AddAura(SPELL_DRUID_NEW_MOON_OVERRIDE, player);
-	}
+		     player->AddAura(SPELL_DRUID_NEW_MOON_OVERRIDE, player);
+	      }
 
-	void Register() override
-	{
-		AfterCast += SpellCastFn(spell_arti_dru_new_moon::RemoveOverride);
-	}
+	      void Register() override
+	      {
+		     AfterCast += SpellCastFn(spell_arti_dru_new_moon_SpellScript::RemoveOverride);
+	      }
+      };
+	  
+	  SpellScript* GetSpellScript() const override
+	  {
+		  return new spell_arti_dru_new_moon_SpellScript();
+	  }
 };
 
 // Half Moon - 202768
-class spell_arti_dru_half_moon : public SpellScript
+class spell_arti_dru_half_moon : public SpellScriptLoader
 {
-	PrepareSpellScript(spell_arti_dru_half_moon);
+public:
+     spell_arti_dru_half_moon() : SpellScriptLoader("spell_arti_dru_half_moon") { }
+	 
+	 
+     class spell_arti_dru_half_moon_SpellScript : public SpellScript
+     {
+	     PrepareSpellScript(spell_arti_dru_half_moon);
 
-	bool Validate(SpellInfo const* /*spellInfo*/) override
-	{
-		return ValidateSpellInfo({ SPELL_DRUID_HALF_MOON, SPELL_DRUID_HALF_MOON_OVERRIDE });
-	}
+	     bool Validate(SpellInfo const* /*spellInfo*/) override
+	     {
+		   return ValidateSpellInfo({ SPELL_DRUID_HALF_MOON, SPELL_DRUID_HALF_MOON_OVERRIDE });
+	     }
 
-	void RemoveOverride()
-	{
-		Player* player = GetCaster()->ToPlayer();
+	     void RemoveOverride()
+	     {
+		    Player* player = GetCaster()->ToPlayer();
 
-		player->AddAura(SPELL_DRUID_HALF_MOON_OVERRIDE, player);
-	}
+		    player->AddAura(SPELL_DRUID_HALF_MOON_OVERRIDE, player);
+	     }
 
-	void Register() override
-	{
-		AfterCast += SpellCastFn(spell_arti_dru_half_moon::RemoveOverride);
-	}
+	     void Register() override
+	     {
+		    AfterCast += SpellCastFn(spell_arti_dru_half_moon_SpellScript::RemoveOverride);
+	     }
+      };
+	  
+	  SpellScript* GetSpellScript() const override
+	  {
+		  return new spell_arti_dru_half_moon_SpellScript();
+	  }
 };
 
 //Full Moon - 202771
-class spell_arti_dru_full_moon : public SpellScript
-{
-	PrepareSpellScript(spell_arti_dru_full_moon);
-
-	bool Validate(SpellInfo const* /*spellInfo*/) override
-	{
-		return ValidateSpellInfo({ SPELL_DRUID_FULL_MOON, SPELL_DRUID_FULL_MOON_OVERRIDE });
-	}
-
-	void RemoveOverride()
-	{
-		Player* player = GetCaster()->ToPlayer();
-		
-		player->RemoveAurasDueToSpell(SPELL_DRUID_HALF_MOON_OVERRIDE);
-		player->RemoveAurasDueToSpell(SPELL_DRUID_NEW_MOON_OVERRIDE);
-	}
-
-	void Register() override
-	{
-		AfterCast += SpellCastFn(spell_arti_dru_full_moon::RemoveOverride);
-	}
-};
-
-class spell_arti_dru_moon_and_stars : public SpellScriptLoader
+class spell_arti_dru_full_moon : public SpellScriptLoader
 {
 public:
-	spell_arti_dru_moon_and_stars() : SpellScriptLoader("spell_arti_dru_moon_and_stars") { }
+     spell_arti_dru_full_moon() : SpellScriptLoader("spell_arti_dru_full_moon") { }
+	 
+	 
+     class spell_arti_dru_full_moon_SpellScript : public SpellScript
+     {
+	    PrepareSpellScript(spell_arti_dru_full_moon_SpellScript);
 
-    class spell_arti_dru_solar_wrath : public SpellScript
-    {
-        PrepareSpellScript(spell_arti_dru_solar_wrath);
+	    bool Validate(SpellInfo const* /*spellInfo*/) override
+	    {
+		    return ValidateSpellInfo({ SPELL_DRUID_FULL_MOON, SPELL_DRUID_FULL_MOON_OVERRIDE });
+	    }
 
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            return ValidateSpellInfo({ SPELL_DRUID_SOLAR_WRATH, SPELL_DRUID_MOON_AND_STARS_BUFF });
-        }
+	    void RemoveOverride()
+	    {
+		    Player* player = GetCaster()->ToPlayer();
+		
+		    player->RemoveAurasDueToSpell(SPELL_DRUID_HALF_MOON_OVERRIDE);
+		    player->RemoveAurasDueToSpell(SPELL_DRUID_NEW_MOON_OVERRIDE);
+	    }
 
-        void HandleAfterCast()
-        {
-            Unit* caster = GetCaster();
-            if (!caster)
-                return;
-
-            caster->AddAura(SPELL_DRUID_MOON_AND_STARS_BUFF,caster);
-        }
-
-        void Register() override
-        {
-            AfterCast += SpellCastFn(spell_arti_dru_solar_wrath::HandleAfterCast);
-        }
-    };
-
-    class spell_arti_dru_lunar_strike : public SpellScript
-    {
-        PrepareSpellScript(spell_arti_dru_lunar_strike);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            return ValidateSpellInfo({ SPELL_DRUID_LUNAR_STRIKE, SPELL_DRUID_MOON_AND_STARS_BUFF });
-        }
-
-        void HandleAfterCast()
-        {
-            Unit* caster = GetCaster();
-            if (!caster)
-                return;
-
-            caster->AddAura(SPELL_DRUID_MOON_AND_STARS_BUFF, caster);
-        }
-
-        void Register() override
-        {
-            AfterCast += SpellCastFn(spell_arti_dru_lunar_strike::HandleAfterCast);
-        }
-    };
-
-	SpellScript* GetSpellScript() const override
-	{
-		return new spell_arti_dru_solar_wrath();
-        return new spell_arti_dru_lunar_strike();
-	}
+	    void Register() override
+	    {
+		    AfterCast += SpellCastFn(spell_arti_dru_full_moon_SpellScript::RemoveOverride);
+	    }
+     };
+	 
+	 SpellScript* GetSpellScript() const override
+	 {
+		 return new spell_arti_dru_full_moon_SpellScript();
+	 }
 };
+
+// class spell_arti_dru_moon_and_stars : public SpellScriptLoader
+// {
+// public:
+	// spell_arti_dru_moon_and_stars() : SpellScriptLoader("spell_arti_dru_moon_and_stars") { }
+
+    // class spell_arti_dru_solar_wrath : public SpellScript
+    // {
+        // PrepareSpellScript(spell_arti_dru_solar_wrath);
+
+        // bool Validate(SpellInfo const* /*spellInfo*/) override
+        // {
+            // return ValidateSpellInfo({ SPELL_DRUID_SOLAR_WRATH, SPELL_DRUID_MOON_AND_STARS_BUFF });
+        // }
+
+        // void HandleAfterCast()
+        // {
+            // Unit* caster = GetCaster();
+            // if (!caster)
+                // return;
+
+            // caster->AddAura(SPELL_DRUID_MOON_AND_STARS_BUFF,caster);
+        // }
+
+        // void Register() override
+        // {
+            // AfterCast += SpellCastFn(spell_arti_dru_solar_wrath::HandleAfterCast);
+        // }
+    // };
+
+    // class spell_arti_dru_lunar_strike : public SpellScript
+    // {
+        // PrepareSpellScript(spell_arti_dru_lunar_strike);
+
+        // bool Validate(SpellInfo const* /*spellInfo*/) override
+        // {
+            // return ValidateSpellInfo({ SPELL_DRUID_LUNAR_STRIKE, SPELL_DRUID_MOON_AND_STARS_BUFF });
+        // }
+
+        // void HandleAfterCast()
+        // {
+            // Unit* caster = GetCaster();
+            // if (!caster)
+                // return;
+
+            // caster->AddAura(SPELL_DRUID_MOON_AND_STARS_BUFF, caster);
+        // }
+
+        // void Register() override
+        // {
+            // AfterCast += SpellCastFn(spell_arti_dru_lunar_strike::HandleAfterCast);
+        // }
+    // };
+
+	// SpellScript* GetSpellScript() const override
+	// {
+		// return new spell_arti_dru_solar_wrath();
+        // return new spell_arti_dru_lunar_strike();
+	// }
+// };
 void AddSC_spell_artifact()
 {
-	new spell_arti_dru_moon_and_stars();
+	//new spell_arti_dru_moon_and_stars();
 	new spell_arti_dru_new_moon_learn();
 	new spell_arti_dru_new_moon();
 	new spell_arti_dru_half_moon();

@@ -57,17 +57,25 @@ enum DruidSpells
     SPELL_DRUID_LIFEBLOOM_FINAL_HEAL        = 33778,
     SPELL_DRUID_LIVING_SEED_HEAL            = 48503,
     SPELL_DRUID_LIVING_SEED_PROC            = 48504,
+	SPELL_DRUID_LUNAR_STRIKE                = 194153,
+	SPELL_DRUID_LUNAR_EMPOWERMENT           = 164547,
     SPELL_DRUID_MOONFIRE_DAMAGE             = 164812,
     SPELL_DRUID_SAVAGE_ROAR                 = 62071,
     SPELL_DRUID_STAMPEDE_BAER_RANK_1        = 81016,
     SPELL_DRUID_STAMPEDE_CAT_RANK_1         = 81021,
     SPELL_DRUID_STAMPEDE_CAT_STATE          = 109881,
+	SPELL_DRUID_STARSURGE                   = 78674,
+	SPELL_DRUID_STARSURGE_RANK_2            = 231021,
     SPELL_DRUID_TRAVEL_FORM                 = 783,
     SPELL_DRUID_REJUVENATION_T10_PROC       = 70691,
     SPELL_DRUID_BALANCE_T10_BONUS           = 70718,
     SPELL_DRUID_BALANCE_T10_BONUS_PROC      = 70721,
+	SPELL_DRUID_SOLAR_WRATH                 = 190984,
+	SPELL_DRUID_SOLAR_EMPOWERMENT           = 164545,
     SPELL_DRUID_SUNFIRE_DAMAGE              = 164815,
-    SPELL_DRUID_SURVIVAL_INSTINCTS          = 50322
+    SPELL_DRUID_SURVIVAL_INSTINCTS          = 50322,
+	
+	
 };
 
 // 1850 - Dash
@@ -736,6 +744,33 @@ public:
     {
         return new spell_dru_starfall_dummy_SpellScript();
     }
+};
+
+//  78674 - Starsurge
+class spell_dru_starsurge : public SpellScriptLoader
+{
+public: 
+	 spell_dru_starsurge() : SpellScriptLoader("spell_dru_starsurge") { }
+	 
+	 class spell_dru_starsurge_SpellScript : public SpellScript
+	 {
+		 PrepareSpellScript(spell_dru_starsurge_SpellScript);
+		 
+		 void HandleOnCast()
+		 {
+			 if (!GetCaster()->HasAura(SPELL_DRUID_STARSURGE_RANK_2))
+		 }
+	 
+	     void Register()
+		 {
+			 AfterCast += SpellCastFn(spell_dru_starsurge_SpellScript::HandleOnCast);
+		 }
+	 };
+	 
+	 SpellScript* GetSpellScript() const override
+	 {
+		 return new spell_dru_starsurge_SpellScript();
+	 }
 };
 
 //  93402 - Sunfire
