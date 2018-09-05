@@ -88,18 +88,24 @@ public:
 	class spell_dru_ysera_gift_AuraScript : public AuraScript
 	{
 		PrepareAuraScript(spell_dru_ysera_gift_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo({ SPELL_DRUID_YSERA_GIFT, SPELL_DRUID_YSERA_GIFT_ALLIED_HEAL, SPELL_DRUID_YSERA_GIFT_CASTER_HEAL });
+        }
 		
 		void HandleEffectPeriodic(AuraEffect const* aurEff)
 		{
 			Unit* caster = GetCaster();
+            Unit* allied = GetTarget();
 			
 			if (!caster || !caster->IsAlive())
 				return;
-			
+
             int32 basepoints;
-			/*CustomSpellValues values;
+			CustomSpellValues values;
 			values.AddSpellMod(SPELLVALUE_MAX_TARGETS, 1);
-			values.AddSpellMod(SPELLVALUE_BASE_POINT0, amount);*/
+			//values.AddSpellMod(SPELLVALUE_BASE_POINT0, amount);
 			
 			if (GetCaster())
                 if (Player* player = GetCaster()->ToPlayer())
@@ -109,41 +115,53 @@ public:
                         basepoints = player->CountPctFromMaxHealth(3);
                         player->CastCustomSpell(player, SPELL_DRUID_YSERA_GIFT_CASTER_HEAL, &basepoints, NULL, NULL, true);
                     }
-                    else
+
+                    else if (player->IsValidAssistTarget(allied))
                     {
-                        std::list<Unit*> tempList;
-                        std::list<Unit*> alliesList;
-                        player->GetPlayerListInGrid(tempList, 100.0f);
-
-                        for (auto itr : tempList)
+                        if ((allied->IsInRaidWith(player) || allied->IsInPartyWith(player)) && !allied->IsFullHealth() && allied->GetTypeId() == TYPEID_PLAYER)
                         {
-                            if (itr->IsInRaidWith(player) || itr->IsInPartyWith(player))
-                                continue;
-
-                            //if (itr->IsHostileTo(player))
-                                //continue;
-
-                            if (itr->GetGUID() == player->GetGUID())
-                                continue;
-
-                            if (itr->GetHealth() == itr->GetMaxHealth())
-                                continue;
-
-                            alliesList.push_back(itr);
-                        }
-
-                        if (!alliesList.empty())
-                        {
-                            alliesList.sort(Trinity::HealthPctOrderPred());
-
-                            Unit* healTarget = alliesList.front();
                             basepoints = player->CountPctFromMaxHealth(3);
-                            player->CastCustomSpell(healTarget, SPELL_DRUID_YSERA_GIFT_ALLIED_HEAL, &basepoints, NULL, NULL, true);
-
-                            if (player->IsInCombat())
-                                player->CombatStop();
+                            player->CastCustomSpell(allied, SPELL_DRUID_YSERA_GIFT_ALLIED_HEAL, &basepoints, NULL, NULL, true);
                         }
-                    }       
+
+                    }
+                    else
+                        return;
+                //    {
+                //        std::list<Unit*> tempList;
+                //        std::list<Unit*> alliesList;
+                //        player->GetPlayerListInGrid(tempList, 100.0f);
+                //        player->_IsValidAssistTarget(tempList, )
+
+                //        for (auto itr : tempList)
+                //        {
+                //            if (itr->IsInRaidWith(player) || itr->IsInPartyWith(player))
+                //                continue;
+
+                //            //if (itr->IsHostileTo(player))
+                //                //continue;
+
+                //            if (itr->GetGUID() == player->GetGUID())
+                //                continue;
+
+                //            if (itr->GetHealth() == itr->GetMaxHealth())
+                //                continue;
+
+                //            alliesList.push_back(itr);
+                //        }
+
+                //        if (!alliesList.empty())
+                //        {
+                //            alliesList.sort(Trinity::HealthPctOrderPred());
+
+                //            Unit* healTarget = alliesList.front();
+                //            basepoints = player->CountPctFromMaxHealth(3);
+                //            player->CastCustomSpell(healTarget, SPELL_DRUID_YSERA_GIFT_ALLIED_HEAL, &basepoints, NULL, NULL, true);
+
+                //            if (player->IsInCombat())
+                //                player->CombatStop();
+                //        }
+                //    }       
                 }
         }
 		
