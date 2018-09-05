@@ -31,14 +31,7 @@
 #include "SpellHistory.h"
 #include "TemporarySummon.h"
 
-enum DamageDruidSpells
-{
-	SPELL_DRUID_SOLAR_WRATH            = 190984,
-	SPELL_DRUID_LUNAR_STRIKE           = 194153,
-	SPELL_DRUID_STARSURGE              = 78674,
-	SPELL_DRUID_MOONFIRE               = 8921,
-	SPELL_DRUID_SUNFIRE                = 93402,
-};
+
 enum ScytheOfEluneSpells
 {
 	///Scythe Basic Attack Spells
@@ -211,68 +204,8 @@ public:
 	 }
 };
 
-// class spell_arti_dru_moon_and_stars : public SpellScriptLoader
-// {
-// public:
-	// spell_arti_dru_moon_and_stars() : SpellScriptLoader("spell_arti_dru_moon_and_stars") { }
-
-    // class spell_arti_dru_solar_wrath : public SpellScript
-    // {
-        // PrepareSpellScript(spell_arti_dru_solar_wrath);
-
-        // bool Validate(SpellInfo const* /*spellInfo*/) override
-        // {
-            // return ValidateSpellInfo({ SPELL_DRUID_SOLAR_WRATH, SPELL_DRUID_MOON_AND_STARS_BUFF });
-        // }
-
-        // void HandleAfterCast()
-        // {
-            // Unit* caster = GetCaster();
-            // if (!caster)
-                // return;
-
-            // caster->AddAura(SPELL_DRUID_MOON_AND_STARS_BUFF,caster);
-        // }
-
-        // void Register() override
-        // {
-            // AfterCast += SpellCastFn(spell_arti_dru_solar_wrath::HandleAfterCast);
-        // }
-    // };
-
-    // class spell_arti_dru_lunar_strike : public SpellScript
-    // {
-        // PrepareSpellScript(spell_arti_dru_lunar_strike);
-
-        // bool Validate(SpellInfo const* /*spellInfo*/) override
-        // {
-            // return ValidateSpellInfo({ SPELL_DRUID_LUNAR_STRIKE, SPELL_DRUID_MOON_AND_STARS_BUFF });
-        // }
-
-        // void HandleAfterCast()
-        // {
-            // Unit* caster = GetCaster();
-            // if (!caster)
-                // return;
-
-            // caster->AddAura(SPELL_DRUID_MOON_AND_STARS_BUFF, caster);
-        // }
-
-        // void Register() override
-        // {
-            // AfterCast += SpellCastFn(spell_arti_dru_lunar_strike::HandleAfterCast);
-        // }
-    // };
-
-	// SpellScript* GetSpellScript() const override
-	// {
-		// return new spell_arti_dru_solar_wrath();
-        // return new spell_arti_dru_lunar_strike();
-	// }
-// };
 void AddSC_spell_artifact()
 {
-	//new spell_arti_dru_moon_and_stars();
 	new spell_arti_dru_new_moon_learn();
 	new spell_arti_dru_new_moon();
 	new spell_arti_dru_half_moon();

@@ -74,10 +74,53 @@ enum DruidSpells
 	SPELL_DRUID_SOLAR_EMPOWERMENT           = 164545,
     SPELL_DRUID_SUNFIRE_DAMAGE              = 164815,
     SPELL_DRUID_SURVIVAL_INSTINCTS          = 50322,
-	
-	
+	SPELL_DRUID_YSERA_GIFT                  = 145108,
+	SPELL_DRUID_YSERA_GIFT_CASTER_HEAL      = 145109,
+	SPELL_DRUID_YSERA_GIFT_ALLIED_HEAL      = 145110
 };
 
+// 145108 - Ysera Gift
+class spell_dru_ysera_gift : public SpellScriptLoader
+{
+public:
+    spell_dru_ysera_gift() : SpellScriptLoader("spell_dru_ysera_gift") { }
+	
+	class spell_dru_ysera_gift_AuraScript : public AuraScript
+	{
+		PrepareAuraScript(spell_dru_ysera_gift_AuraScript);
+		
+		void HandleEffectPeriodic(AuraEffect const* aurEff)
+		{
+			Unit* caster = GetCaster();
+			
+			if (!caster || !caster->IsAlive())
+				return;
+			
+			int64 amount = CalculatePct(caster->GetMaxHealth(), aurEff->GetBaseAmount());
+			CustomSpellValues values;
+			values.AddSpellMod(SPELLVALUE_MAX_TARGETS, 1);
+			values.AddSpellMod(SPELLVALUE_BASE_POINT0, amount);
+			
+			if (caster->IsFullHealth())
+				caster->CastCustomSpell(SPELL_DRUID_YSERA_GIFT_ALLIED_HEAL, values, caster, TRIGGERED_FULL_MASK);
+			else if (!caster->IsFullHealth())
+				caster->CastCustomSpell(SPELL_DRUID_YSERA_GIFT_CASTER_HEAL, values, caster, TRIGGERED_FULL_MASK);
+			else if (caster->IsFullHealth() && values->IsFullHealth())
+				     return;
+		}
+		
+		void Register() override
+		{
+			OnEffectPeriodic +' AuraEffectPeriodicFn(spell_dru_ysera_gift_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+		}
+		
+	};
+		
+    AuraScript* GetAuraScript() const override
+	{
+		RegisterAuraScript(spell_dru_dash_AuraScript);
+	}
+};
 // 1850 - Dash
 class spell_dru_dash : public SpellScriptLoader
 {
@@ -1509,4 +1552,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_t10_restoration_4p_bonus();
     new spell_dru_t10_restoration_4p_bonus_dummy();
     new spell_dru_wild_growth();
+	new spell_dru_ysera_gift();
 }
