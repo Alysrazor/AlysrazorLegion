@@ -96,29 +96,67 @@ public:
 			if (!caster || !caster->IsAlive())
 				return;
 			
-			int64 amount = CalculatePct(caster->GetMaxHealth(), aurEff->GetBaseAmount());
-			CustomSpellValues values;
+            int32 basepoints;
+			/*CustomSpellValues values;
 			values.AddSpellMod(SPELLVALUE_MAX_TARGETS, 1);
-			values.AddSpellMod(SPELLVALUE_BASE_POINT0, amount);
+			values.AddSpellMod(SPELLVALUE_BASE_POINT0, amount);*/
 			
-			if (caster->IsFullHealth())
-				caster->CastCustomSpell(SPELL_DRUID_YSERA_GIFT_ALLIED_HEAL, values, caster, TRIGGERED_FULL_MASK);
-			else if (!caster->IsFullHealth())
-				caster->CastCustomSpell(SPELL_DRUID_YSERA_GIFT_CASTER_HEAL, values, caster, TRIGGERED_FULL_MASK);
-			else if (caster->IsFullHealth() && values->IsFullHealth())
-				     return;
-		}
+			if (GetCaster())
+                if (Player* player = GetCaster()->ToPlayer())
+                {
+                    if (player->GetHealth() != player->GetMaxHealth())
+                    {
+                        basepoints = player->CountPctFromMaxHealth(3);
+                        player->CastCustomSpell(player, SPELL_DRUID_YSERA_GIFT_CASTER_HEAL, &basepoints, NULL, NULL, true);
+                    }
+                    else
+                    {
+                        std::list<Unit*> tempList;
+                        std::list<Unit*> alliesList;
+                        player->GetPlayerListInGrid(tempList, 100.0f);
+
+                        for (auto itr : tempList)
+                        {
+                            if (!itr->IsInRaidWith(player) || !itr->IsInPartyWith(player))
+                                continue;
+
+                            if (itr->IsHostileTo(player))
+                                continue;
+
+                            if (itr->GetGUID() == player->GetGUID())
+                                continue;
+
+                            if (itr->GetHealth() == itr->GetMaxHealth())
+                                continue;
+
+                            alliesList.push_back(itr);
+                        }
+
+                        if (!alliesList.empty())
+                        {
+                            alliesList.sort(Trinity::HealthPctOrderPred());
+
+                            Unit* healTarget = alliesList.front();
+                            basepoints = player->CountPctFromMaxHealth(3);
+                            player->CastCustomSpell(healTarget, SPELL_DRUID_YSERA_GIFT_ALLIED_HEAL, &basepoints, NULL, NULL, true);
+
+                            if (player->IsInCombat())
+                                player->CombatStop();
+                        }
+                    }       
+                }
+        }
 		
 		void Register() override
 		{
-			OnEffectPeriodic +' AuraEffectPeriodicFn(spell_dru_ysera_gift_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+			OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_ysera_gift_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
 		}
 		
 	};
 		
     AuraScript* GetAuraScript() const override
 	{
-		RegisterAuraScript(spell_dru_dash_AuraScript);
+		RegisterAuraScript(spell_dru_ysera_gift_AuraScript);
 	}
 };
 // 1850 - Dash
