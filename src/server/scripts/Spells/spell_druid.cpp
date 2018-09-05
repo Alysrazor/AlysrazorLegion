@@ -117,11 +117,11 @@ public:
 
                         for (auto itr : tempList)
                         {
-                            if (!itr->IsInRaidWith(player) || !itr->IsInPartyWith(player))
+                            if (itr->IsInRaidWith(player) || itr->IsInPartyWith(player))
                                 continue;
 
-                            if (itr->IsHostileTo(player))
-                                continue;
+                            //if (itr->IsHostileTo(player))
+                                //continue;
 
                             if (itr->GetGUID() == player->GetGUID())
                                 continue;
@@ -156,7 +156,7 @@ public:
 		
     AuraScript* GetAuraScript() const override
 	{
-		RegisterAuraScript(spell_dru_ysera_gift_AuraScript);
+		return new spell_dru_ysera_gift_AuraScript();
 	}
 };
 // 1850 - Dash
