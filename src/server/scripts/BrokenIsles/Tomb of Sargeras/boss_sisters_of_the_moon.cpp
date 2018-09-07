@@ -64,16 +64,17 @@ enum Says
   //Sisters
   SAY_SISTERS_AGGRO     = 1,
   SAY_SISTERS_DEATH     = 2,
+  SAY_SISTERS_EVADE     = 3,
   //Kasparian 
-  SAY_SPELL_GLAIVE      = 3,
-  SAY_SISTER_KILLS      = 4,
+  SAY_SPELL_GLAIVE      = 4,
+  SAY_SISTER_KILLS      = 5,
   //Yathae
-  SAY_PHASE_COMBAT      = 5,
-  SAY_SPELLS_ARROW      = 6,
-  SAY_SPELL_AOE         = 7,
+  SAY_PHASE_COMBAT      = 6,
+  SAY_SPELLS_ARROW      = 7,
+  SAY_SPELL_AOE         = 8,
   //Lunaspyre
-  SAY_SPELL             = 8,
-  SAY_FOUNTAIN_OF_ELUNE = 9,
+  SAY_SPELL             = 9,
+  SAY_FOUNTAIN_OF_ELUNE = 10,
 }
 
 enum SistersSpells
