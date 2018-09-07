@@ -26,9 +26,9 @@
 
 DoorData const doorData[] =
 {
-   { GO_MOON_CHAMBER_WINDOW ,   DATA_SISTERS_OF_THE_MOON,        DOOR_TYPE_ROOM },
-   { GO_MOON_CHAMBER_HOLE,      DATA_SISTERS_OF_THE_MOON,        DOOR_TYPE      },
-   { GO_MOON_CHAMBER_MISSILE,   DATA_SISTERS_OF_THE_MOON,        DOOR_TYPE      },
+   { GO_MOON_CHAMBER_WINDOW ,   DATA_SISTERS_OF_THE_MOON,        DOOR_TYPE_ROOM            },
+   { GO_MOON_CHAMBER_HOLE,      DATA_SISTERS_OF_THE_MOON,        DOOR_TYPE_SPAWN_HOLE      },
+   { GO_MOON_CHAMBER_MISSILE,   DATA_SISTERS_OF_THE_MOON,        DOOR_TYPE_SPAWN_HOLE       },
 };
 
 class instance_tomb_of_sargeras : public InstanceMapScript
@@ -75,8 +75,10 @@ public:
 		{
 		   switch (go->GetEntry())
 		   {
-		      case GO_DOOR_ROOM_SISTERS:
-			      AddDoor(go, true);
+              case GO_MOON_CHAMBER_HOLE:
+              case GO_MOON_CHAMBER_MISSILE:
+              case GO_MOON_CHAMBER_WINDOW:
+                  AddDoor(go, true);
 			      break;
 			  default:
 			      break;
@@ -94,5 +96,4 @@ void AddSC_instance_tomb_of_sargeras()
 {
     new instance_tomb_of_sargeras();
 }
-		
 		

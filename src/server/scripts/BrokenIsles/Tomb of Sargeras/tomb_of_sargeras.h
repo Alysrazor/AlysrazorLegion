@@ -18,6 +18,11 @@
 #ifndef TOMB_OF_SARGERAS_H
 #define TOMB_OF_SARGERAS_H
 
+#include "CreatureAIImpl.h"
+
+#define ToSScriptName "instance_tomb_of_sargeras"
+#define DataHeader   "ToS"
+
 
 enum DataTypes
 {
@@ -30,6 +35,11 @@ enum DataTypes
     DATA_MAIDEN_OF_VIGILANCE    = 6,
     DATA_FALLEN_AVATAR          = 7,
     DATA_KILJAEDEN              = 8,
+
+    //Aditional Data
+    DATA_HUNTRESS_KASPARIAN        = 9,
+    DATA_CAPTAIN_YATHAE_MOONSTRIKE = 10,
+    DATA_PRIESTESS_LUNASPYRE       = 11,
 
     DATA_MAX_ENCOUNTERS
 };
@@ -44,6 +54,7 @@ enum Creatures
     NPC_HARJATAN                    = 116407,
 
     // Sisters of the Moon
+    NPC_SISTERS_OF_THE_MOON         = 735200,
     NPC_HUNTRESS_KASPARIAN          = 118523,
     NPC_CAPTAIN_YATHAE_MOONSTRIKE   = 118374,
     NPC_PRIESTESS_LUNASPYRE         = 118518,
@@ -77,5 +88,11 @@ enum Gameobjects
     GO_DOOR_ROOM_GOROTH_N           = 269975,
     GO_DOOR_ROOM_GOROTH_E           = 269973,
 };
+
+template<typename AI>
+inline AI* GetTombOfSargerasAI(Creature* creature)
+{
+    return GetInstanceAI<AI>(creature, ToSScriptName);
+}
 
 #endif // TOMB_OF_SARGERAS_H
