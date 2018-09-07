@@ -57,19 +57,126 @@ enum DruidSpells
     SPELL_DRUID_LIFEBLOOM_FINAL_HEAL        = 33778,
     SPELL_DRUID_LIVING_SEED_HEAL            = 48503,
     SPELL_DRUID_LIVING_SEED_PROC            = 48504,
+	SPELL_DRUID_LUNAR_STRIKE                = 194153,
+	SPELL_DRUID_LUNAR_EMPOWERMENT           = 164547,
     SPELL_DRUID_MOONFIRE_DAMAGE             = 164812,
     SPELL_DRUID_SAVAGE_ROAR                 = 62071,
     SPELL_DRUID_STAMPEDE_BAER_RANK_1        = 81016,
     SPELL_DRUID_STAMPEDE_CAT_RANK_1         = 81021,
     SPELL_DRUID_STAMPEDE_CAT_STATE          = 109881,
+	SPELL_DRUID_STARSURGE                   = 78674,
+	SPELL_DRUID_STARSURGE_RANK_2            = 231021,
     SPELL_DRUID_TRAVEL_FORM                 = 783,
     SPELL_DRUID_REJUVENATION_T10_PROC       = 70691,
     SPELL_DRUID_BALANCE_T10_BONUS           = 70718,
     SPELL_DRUID_BALANCE_T10_BONUS_PROC      = 70721,
+	SPELL_DRUID_SOLAR_WRATH                 = 190984,
+	SPELL_DRUID_SOLAR_EMPOWERMENT           = 164545,
     SPELL_DRUID_SUNFIRE_DAMAGE              = 164815,
-    SPELL_DRUID_SURVIVAL_INSTINCTS          = 50322
+    SPELL_DRUID_SURVIVAL_INSTINCTS          = 50322,
+	SPELL_DRUID_YSERA_GIFT                  = 145108,
+	SPELL_DRUID_YSERA_GIFT_CASTER_HEAL      = 145109,
+	SPELL_DRUID_YSERA_GIFT_ALLIED_HEAL      = 145110
 };
 
+// 145108 - Ysera Gift
+class spell_dru_ysera_gift : public SpellScriptLoader
+{
+public:
+    spell_dru_ysera_gift() : SpellScriptLoader("spell_dru_ysera_gift") { }
+	
+	class spell_dru_ysera_gift_AuraScript : public AuraScript
+	{
+		PrepareAuraScript(spell_dru_ysera_gift_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo({ SPELL_DRUID_YSERA_GIFT, SPELL_DRUID_YSERA_GIFT_ALLIED_HEAL, SPELL_DRUID_YSERA_GIFT_CASTER_HEAL });
+        }
+		
+		void HandleEffectPeriodic(AuraEffect const* aurEff)
+		{
+			Unit* caster = GetCaster();
+            Unit* allied = GetTarget();
+			
+			if (!caster || !caster->IsAlive())
+				return;
+
+            int32 basepoints;
+			CustomSpellValues values;
+			values.AddSpellMod(SPELLVALUE_MAX_TARGETS, 1);
+			//values.AddSpellMod(SPELLVALUE_BASE_POINT0, amount);
+			
+			if (GetCaster())
+                if (Player* player = GetCaster()->ToPlayer())
+                {
+                    if (player->GetHealth() != player->GetMaxHealth())
+                    {
+                        basepoints = player->CountPctFromMaxHealth(3);
+                        player->CastCustomSpell(player, SPELL_DRUID_YSERA_GIFT_CASTER_HEAL, &basepoints, NULL, NULL, true);
+                    }
+
+                    else if (player->IsValidAssistTarget(allied))
+                    {
+                        if ((allied->IsInRaidWith(player) || allied->IsInPartyWith(player)) && !allied->IsFullHealth() && allied->GetTypeId() == TYPEID_PLAYER)
+                        {
+                            basepoints = player->CountPctFromMaxHealth(3);
+                            player->CastCustomSpell(allied, SPELL_DRUID_YSERA_GIFT_ALLIED_HEAL, &basepoints, NULL, NULL, true);
+                        }
+
+                    }
+                    else
+                        return;
+                //    {
+                //        std::list<Unit*> tempList;
+                //        std::list<Unit*> alliesList;
+                //        player->GetPlayerListInGrid(tempList, 100.0f);
+                //        player->_IsValidAssistTarget(tempList, )
+
+                //        for (auto itr : tempList)
+                //        {
+                //            if (itr->IsInRaidWith(player) || itr->IsInPartyWith(player))
+                //                continue;
+
+                //            //if (itr->IsHostileTo(player))
+                //                //continue;
+
+                //            if (itr->GetGUID() == player->GetGUID())
+                //                continue;
+
+                //            if (itr->GetHealth() == itr->GetMaxHealth())
+                //                continue;
+
+                //            alliesList.push_back(itr);
+                //        }
+
+                //        if (!alliesList.empty())
+                //        {
+                //            alliesList.sort(Trinity::HealthPctOrderPred());
+
+                //            Unit* healTarget = alliesList.front();
+                //            basepoints = player->CountPctFromMaxHealth(3);
+                //            player->CastCustomSpell(healTarget, SPELL_DRUID_YSERA_GIFT_ALLIED_HEAL, &basepoints, NULL, NULL, true);
+
+                //            if (player->IsInCombat())
+                //                player->CombatStop();
+                //        }
+                //    }       
+                }
+        }
+		
+		void Register() override
+		{
+			OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_ysera_gift_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+		}
+		
+	};
+		
+    AuraScript* GetAuraScript() const override
+	{
+		return new spell_dru_ysera_gift_AuraScript();
+	}
+};
 // 1850 - Dash
 class spell_dru_dash : public SpellScriptLoader
 {
@@ -737,6 +844,33 @@ public:
         return new spell_dru_starfall_dummy_SpellScript();
     }
 };
+
+//  78674 - Starsurge
+//class spell_dru_starsurge : public SpellScriptLoader
+//{
+//public: 
+//	 spell_dru_starsurge() : SpellScriptLoader("spell_dru_starsurge") { }
+//	 
+//	 class spell_dru_starsurge_SpellScript : public SpellScript
+//	 {
+//		 PrepareSpellScript(spell_dru_starsurge_SpellScript);
+//		 
+//		 void HandleOnCast()
+//		 {
+//			 if (!GetCaster()->HasAura(SPELL_DRUID_STARSURGE_RANK_2))
+//		 }
+//	 
+//	     void Register()
+//		 {
+//			 AfterCast += SpellCastFn(spell_dru_starsurge_SpellScript::HandleOnCast);
+//		 }
+//	 };
+//	 
+//	 SpellScript* GetSpellScript() const override
+//	 {
+//		 return new spell_dru_starsurge_SpellScript();
+//	 }
+//};
 
 //  93402 - Sunfire
 class spell_dru_sunfire : public SpellScriptLoader
@@ -1474,4 +1608,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_t10_restoration_4p_bonus();
     new spell_dru_t10_restoration_4p_bonus_dummy();
     new spell_dru_wild_growth();
+	new spell_dru_ysera_gift();
 }
