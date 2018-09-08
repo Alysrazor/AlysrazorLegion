@@ -29,7 +29,27 @@ DoorData const doorData[] =
    { GO_MOON_CHAMBER_WINDOW ,   DATA_SISTERS_OF_THE_MOON,        DOOR_TYPE_ROOM            },
    { GO_MOON_CHAMBER_HOLE,      DATA_SISTERS_OF_THE_MOON,        DOOR_TYPE_SPAWN_HOLE      },
    { GO_MOON_CHAMBER_MISSILE,   DATA_SISTERS_OF_THE_MOON,        DOOR_TYPE_SPAWN_HOLE      },
+   { 0,                         0,                               DOOR_TYPE_ROOM            },
 };
+
+ObjectData const creatureData[] =
+{
+    { NPC_ATRIGAN,                      DATA_DEMONIC_INQUISITION          },
+    { NPC_ENGINE_OF_SOULS,              DATA_DESOLATE_HOST                },
+    { NPC_SISTERS_OF_THE_MOON,          DATA_SISTERS_OF_THE_MOON          },
+    { NPC_CAPTAIN_YATHAE_MOONSTRIKE,    DATA_CAPTAIN_YATHAE_MOONSTRIKE    },
+    { NPC_FALLEN_AVATAR,                DATA_FALLEN_AVATAR                },
+    { NPC_HUNTRESS_KASPARIAN,           DATA_HUNTRESS_KASPARIAN           },
+    { NPC_PRIESTESS_LUNASPYRE,          DATA_PRIESTESS_LUNASPYRE          },
+    { NPC_MAIDEN_OF_VIGILANCE,          DATA_MAIDEN_OF_VIGILANCE          },
+    { NPC_KILJAEDEN,                    DATA_KILJAEDEN                    },
+    { NPC_GOROTH,                       DATA_GOROTH                       },
+    { NPC_HARJATAN,                     DATA_HARJATAN                     },
+};
+
+
+
+
 
 class instance_tomb_of_sargeras : public InstanceMapScript
 {
@@ -38,13 +58,14 @@ public:
 	
 	struct instance_tomb_of_sargeras_InstanceMapScript : public InstanceScript
 	{
-	    instance_tomb_of_sargeras_InstanceMapScript(InstanceMap* map) : InstanceScript(map) { }
+	    instance_tomb_of_sargeras_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
+        {
+            SetHeaders(DataHeader);
+            SetBossNumber(EncounterCount);
+            LoadDoorData(doorData);
+            LoadObjectData(creatureData, nullptr);
+        }
 		
-		void Initialize() override
-		{
-		   SetBossNumber(DATA_MAX_ENCOUNTERS);
-		   LoadDoorData(doorData);
-		}
 		
 		void OnCreatureCreate(Creature* creature) override
 		{
