@@ -555,75 +555,134 @@ public:
     };
 };
 
-// class boss_priestess_lunaspyre : public CreatureScript
-// {
-// public: 
-   // boss_priestess_lunaspyre() : CreatureScript("boss_priestess_lunaspyre") { }
+class boss_priestess_lunaspyre : public CreatureScript
+{
+public:
+   boss_priestess_lunaspyre() : CreatureScript("boss_priestess_lunaspyre") { }
    
-   // struct boss_priestess_lunaspyreAI : public SistersoftheMoonBossAI
-   // {
-	   // boss_priestess_lunaspyreAI(Creature* creature) : SistersoftheMoonBossAI(creature, DATA_PRIESTESS_LUNASPYRE) { }
+   struct boss_priestess_lunaspyreAI : public BossAI
+   {
+	   boss_priestess_lunaspyreAI(Creature* creature) : BossAI(creature, DATA_PRIESTESS_LUNASPYRE) 
+	   {
+		   StartEncounter();
+		   HealthBound(1000, 1000);
+	   }
 	   
-	   // void PhaseCombat() override
-		// {
-			// if (events.IsInPhase(THE_PRIESTESS))
-			// {
-				 // me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                 // me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-				 // //Remove Ghost Aura
-				 // events.ScheduleEvent(EVENT_TELEPORT_CENTER_COMBAT, Seconds(0));
-				 // events.ScheduleEvent(EVENT_LUNAR_BEACON, Seconds(12));
-				 // events.ScheduleEvent(EVENT_LUNAR_FIRE, Seconds(22));
-				 // events.ScheduleEvent(EVENT_MOON_BURN, Seconds(25));
-			// }
-			// else
-				// PhaseGhost();
-		// }
-		
-		// void PhaseGhost() override
-		// {
-			// if (events.IsInPhase(THE_HUNTRESS) || events.IsInPhase(THE_CAPTAIN))
-			// {
-				// events.ScheduleEvent(EVENT_INCORPOREAL_TELEPORT, Seconds(30));
-				// events.ScheduleEvent(EVENT_LUNAR_FIRE, Seconds(4));
-			// }
-			// else
-				// PhaseCombat();
-	    // }
-		
-		// void ExecuteEvent(uint32 eventId) override
-	    // {
-		   // switch (eventId)
-		   // {
-		   // }
-	    // }
+	   void StartEncounter()
+	   {
+		   _Reset();
+		   me->SetReactState(REACT_PASSIVE);
+		   events.SetPhase(SISTER_GHOST);
+	   }
 	   
-	   // void UpdateAI(uint32 diff) override
-	   // {
-		   // if (!UpdateVictim())
-			   // return;
+	   void EnterCombat(Unit* /*who*/) override
+	   {
+		   me->setActive(true);
+		   DoZoneInCombat();
+		   HealthBound(1000, 1000);
 		   
-		   // events.Update(diff);
+		   events.SetPhase(SISTER_GHOST);
+		   events.ScheduleEvent(EVENT_LUNAR_FIRE, Seconds(12));
+		   events.ScheduleEvent(EVENT_LUNAR_BEACON, Seconds(17), 0 , THE_PRIESTESS);
+		   events.ScheduleEvent(EVENT_MOON_BURN, Seconds(10), 0 , THE_PRIESTESS);
+	   }
+	   
+	   void EnterEvadeMode(EvadeReason /*why*/) override
+	   {
+		   if (events.IsInPhase(THE_PRIESTESS))
+			   Talk(SAY_SISTERS_EVADE);
+		   summons.DespawnAll();
+		   _DespawnAtEvade();
+	   }
+	   
+	   void KilledUnit(Unit* victim) override
+	   {
+		   if (victim->GetTypeId() == TYPEID_PLAYER && !me->IsInEvadeMode() && events.IsInPhase(THE_PRIESTESS))
+			   Talk(SAY_LUNASPYRE_KILLS);
 		   
-		   // if (me->HasUnitState(UNIT_STATE_CASTING))
-			   // return;
+		   else if (events.IsInPhase(THE_HUNTRESS))
+		   {
+			   Creature* kasparian = instance->GetCreature(DATA_HUNTRESS_KASPARIAN)
+			   kasparian->AI()->Talk(SAY_SISTER_KILLS);
+		   }
 		   
-		   // while (uint32 eventId = events.ExecuteEvent())
-		   // {
-			   // ExecuteEvent(eventId);
-			   // if (me->HasUnitState(UNIT_STATE_CASTING))
-				   // return;
-		   // }
+		   else if (events.IsInPhase(THE_CAPTAIN))
+		   {
+			   Creature* yathae = instance->GetCreature(DATA_CAPTAIN_YATHAE_MOONSTRIKE)
+			   yathae->AI()->Talk(SAY_SISTER_KILLS);
+		   }
+	   }
+	   
+	   void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+	   {
+		   if (events.IsInPhase(SISTER_GHOST) && !HealthAbovePct(40))
+		   {
+			   events.SetPhase(THE_PRIESTESS)
+			   me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+               me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+               me->RemoveAura(SPELL_GHOST_AURA);
+               return;
+		   }
+	   }
+	   
+	   void HealthBound(uint32 diff, uint32 HPUpdate)
+       {
+            if (events.IsInPhase(THE_CAPTAIN))
+            {
+                Creature* kasparian = instance->GetCreature(DATA_HUNTRESS_KASPARIAN);
+                Creature* yathae = instance->GetCreature(DATA_CAPTAIN_YATHAE_MOONSTRIKE);
+                HPUpdate = 1000;
+
+                if (HPUpdate <= diff)
+                {
+                    uint32 lunaspyreHP = me->GetHealth();
+                    kasparian->SetHealth(lunaspyreHP);
+                    lunaspyre->SetHealth(lunaspyreHP);
+                }
+                else HPUpdate -= diff;
+            }
+       }
+	   
+	   void UpdateAI(uint32 diff) override
+	   {
+		   if (!UpdateVictim())
+			   return;
 		   
-		   // DoMeleeAttackIfReady();
-	   // }
-	// };
-	
-	// CreatureAI* GetAI(Creature* creature) const override
-	// {
-		// return GetTombOfSargerasAI<boss_priestess_lunaspyreAI>(creature);
-	// }
-// };
+		   events.Update(diff);
+		   
+		   if (me->HasUnitState(UNIT_STATE_CASTING))
+			   return;
+		   
+		   while (uint32 eventId = events.ExecuteEvent())
+		   {
+			   switch (eventId)
+			   {
+				   case EVENT_LUNAR_BEACON:
+				        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+							DoCast(target, SPELL_LUNAR_BEACON);
+						events.Repeat(Seconds(12));
+				   break;
+				   case EVENT_LUNAR_FIRE:
+				        DoCastVictim(SPELL_LUNAR_FIRE);
+				   events.Repeat(Seconds(25));
+				   break;
+				 default:
+				   break;
+			   }
+		   }
+		   
+		   if (!events.IsInPhase(THE_PRIESTESS))
+			   DoSpellAttackIfReady(SPELL_LUNAR_STRIKE);
+		   else DoMeleeAttackIfReady();
+	   }
+   };
+   
+   Creature* GetAI(Creature* creature) const override
+   {
+	   return GetTombOfSargerasAI<boss_priestess_lunaspyreAI>(creature);
+   }
+};
+		
 /*struct at_twilight_volley : AreaTriggerAI
 {
     at_twilight_volley(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
