@@ -63,19 +63,22 @@ Position const KasparianJumps[5] =
 enum Says
 {
     //Sisters
-    SAY_SISTERS_AGGRO = 1,
-    SAY_SISTERS_DEATH = 2,
-    SAY_SISTERS_EVADE = 3,
+    SAY_SISTERS_AGGRO     = 1,
+    SAY_SISTERS_DEATH     = 2,
+    SAY_SISTERS_EVADE     = 3,
+	SAY_SISTER_KILLS      = 4,
     //Kasparian 
-    SAY_SPELL_GLAIVE = 4,
-    SAY_SISTER_KILLS = 5,
+    SAY_SPELL_GLAIVE      = 5,
+	SAY_KASPARIAN_KILLS   = 6,
     //Yathae
-    SAY_PHASE_COMBAT = 6,
-    SAY_SPELLS_ARROW = 7,
-    SAY_SPELL_AOE = 8,
+    SAY_PHASE_COMBAT      = 7,
+    SAY_SPELLS_ARROW      = 8,
+    SAY_SPELL_AOE         = 9,
+	SAY_YATHAE_KILLS      = 10,
     //Lunaspyre
-    SAY_SPELL = 9,
-    SAY_FOUNTAIN_OF_ELUNE = 10,
+    SAY_SPELL             = 11,
+    SAY_FOUNTAIN_OF_ELUNE = 12,
+	SAY_LUNASPYRE_KILLS   = 13
 };
 
 enum SistersSpells
@@ -85,6 +88,7 @@ enum SistersSpells
     SPELL_INCORPOREAL_TELEPORT = 236115, //Cast
     SPELL_INCORPOREAL_TELEPORT_2 = 236224, //Not sure if this is the teleport or need script. Instant cast. These two teleport spells are the same for Lunaspyre
     SPELL_COOLDOWN_CREATURE_SPECIAL = 61207, //To block other spells from interfering with their special
+	SPELL_GHOST_AURA = 235268, //Cosmetic for Sisters
     //Kasparian
     SPELL_TWILIGHT_GLAIVE_AT = 236529,// AT 9785 and add aura to bunny + make bunny got target,then return
     SPELL_TWILIGHT_GLAIVE_DAMAGE = 236541,
@@ -139,16 +143,17 @@ enum SistersEvents
 
 enum Phases
 {
-    THE_HUNTRESS = 1,
-    THE_CAPTAIN = 2,
-    THE_PRIESTESS = 3,
+    THE_HUNTRESS   = 1,
+    THE_CAPTAIN    = 2,
+    THE_PRIESTESS  = 3,
+	SISTER_GHOST   = 4,
 };
 
 uint32 const SistersData[3]
 {
     DATA_HUNTRESS_KASPARIAN,
-    DATA_CAPTAIN_YATHAE_MOONSTRIKE,
-    DATA_PRIESTESS_LUNASPYRE
+    DATA_PRIESTESS_LUNASPYRE,
+	DATA_CAPTAIN_YATHAE_MOONSTRIKE,
 };
 
 enum SistersMisc
@@ -248,135 +253,105 @@ public:
    }
 };
 
-struct SistersoftheMoonBossAI : public BossAI
-{
-	SistersoftheMoonBossAI(Creature* creature, uint32 bossId) : BossAI(creature, bossId), _bossId(bossId)
-	{
-		SetBoundary(instance->GetBossBoundary(DATA_SISTERS_OF_THE_MOON));
-	}	
-		void Reset() override
-		{
-			me->SetCombatPulseDelay(0);
-			events.Reset();
-	    }
-		
-		void EnterCombat(Unit* /*who*/) override
-		{
-			me->SetCombatPulseDelay(5);
-			me->setActive(true);
-			if (Creature* sisters = instance->GetCreature(DATA_SISTERS_OF_THE_MOON))
-				DoZoneInCombat(sisters);
-            events.SetPhase(THE_HUNTRESS);
-            /*if (Creature* kasparian = instance->GetCreature(DATA_HUNTRESS_KASPARIAN))
-                events.SetPhase(PHASE_COMBAT);
-			if (Creature* yathae = instance->GetCreature(DATA_CAPTAIN_YATHAE_MOONSTRIKE))
-				events.SetPhase
-			if (Creature* lunaspyre = instance->GetCreature(DATA_PRIESTESS_LUNASPYRE))
-				lunaspyre->SetPhase(PHASE_GHOST);*/
-			PhaseCombat();
-			PhaseGhost();
-	    }
-		
-		virtual void PhaseCombat() = 0;
-		virtual void PhaseGhost() = 0;
-		
-		void EnterEvadeMode(EvadeReason why) override
-		{
-			if (Creature* sisters = instance->GetCreature(DATA_SISTERS_OF_THE_MOON))
-				sisters->AI()->EnterEvadeMode(why);
-		}
-		
-		void KilledUnit(Unit* victim) override
-		{
-            Creature* kasparian = instance->GetCreature(DATA_HUNTRESS_KASPARIAN);
-            Creature* yathae = instance->GetCreature(DATA_CAPTAIN_YATHAE_MOONSTRIKE);
-            Creature* lunaspyre = instance->GetCreature(DATA_PRIESTESS_LUNASPYRE);
-			
-			if (victim->GetTypeId() == TYPEID_PLAYER)
-				Talk(SAY_SISTER_KILLS);
-			
-			/*else if ((victim->GetTypeId() == TYPEID_PLAYER) && ((killer = instance->GetCreature(DATA_CAPTAIN_YATHAE_MOONSTRIKE) || killer = lunaspyre) && instance->GetBossState(DATA_HUNTRESS_KASPARIAN, IN_PROGRESS)))
-				//Kasparian Special Say KilledUnit
-			
-			else if ((victim->GetTypeId() == TYPEID_PLAYER) && ((killer = kasparian || killer = lunaspyre) && instance->GetBossState(DATA_CAPTAIN_YATHAE_MOONSTRIKE, IN_PROGRESS)))
-				//Yathae Special Say Killed Unit
-			
-			else if ((victim->GetTypeId() == TYPEID_PLAYER) && ((killer = kasparian || killer = yathae) && instance->GetBossState(DATA_PRIESTESS_LUNASPYRE, IN_PROGRESS)))
-		      //Lunaspyre Special Say Killed Unit */
-		}
-		
-		private:
-		    uint32 _bossId;
-};
-		
-		
+
 class boss_huntress_kasparian : public CreatureScript
 {
 public:
    boss_huntress_kasparian() : CreatureScript("boss_huntress_kasparian") { }
    
-   struct boss_huntress_kasparianAI : public SistersoftheMoonBossAI
+   struct boss_huntress_kasparianAI : public BossAI
    {
-	   boss_huntress_kasparianAI(Creature* creature) : SistersoftheMoonBossAI(creature, DATA_HUNTRESS_KASPARIAN) { }
+	   boss_huntress_kasparianAI(Creature* creature) : BossAI(creature, DATA_HUNTRESS_KASPARIAN) 
+	   {
+		   StartEncounter();
+	   }
 
-       void PhaseCombat() override
+       void StartEncounter()
+	   {
+		   _Reset();
+		   me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+		   me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+		   events.SetPhase(THE_HUNTRESS);
+	   }
+	   
+	   void EnterCombat(Unit* /*who*/) override
+	   {
+		   me->setActive(true);
+		   DoZoneInCombat();
+		   
+		   events.SetPhase(THE_HUNTRESS);
+		   events.ScheduleEvent(EVENT_MOON_GLAIVE, Seconds(17), THE_HUNTRESS);
+		   events.ScheduleEvent(EVENT_TWILIGHT_GLAIVE, Seconds(22));
+	   }
+	   
+	   void EnterEvadeMode(EvadeReason /*why*/) override
+	   {
+		   summons.DespawnAll();
+		   _DespawnAtEvade();
+	   }
+	   
+	   void KilledUnit(Unit* victim) override
+	   {
+		   if (victim->GetTypeId() == TYPEID_PLAYER && !me->IsInEvadeMode() && events.IsInPhase(THE_HUNTRESS))
+		       Talk(SAY_KASPARIAN_KILLS);
+		   
+		   else if (events.IsInPhase(THE_CAPTAIN))
+		   {
+			   Creature* yathae = instance->GetCreature(DATA_CAPTAIN_YATHAE_MOONSTRIKE);
+			   yathae->AI()->Talk(SAY_SISTER_KILLS);
+		   }
+		   
+		   else if (events.IsInPhase(THE_PRIESTESS))
+		   {
+			   Creature* lunaspyre = instance->GetCreature(DATA_PRIESTESS_LUNASPYRE);
+			   lunaspyre->AI()->Talk(SAY_SISTER_KILLS);
+		   }
+	   }
+	   
+	   void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+	   {
+		   if (events.IsInPhase(THE_HUNTRESS) && !HealthAbovePct(70))
+		   {
+			   events.SetPhase(SISTER_GHOST);
+			   //TODO: Apply not attackable and selectable, also add ghost aura and react passive?
+			   me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+			   me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+			   me->AddAura(SPELL_GHOST_AURA);
+			   return;
+		   }		 
+	   }
+	   
+	   void JustSummoned(Creature* summon) override
+	   {
+		   switch (summon->GetEntry())
+		   {
+			    case NPC_TWILIGHT_GLAIVE_DUMMY:
+			    case NPC_GLAIVE_STORM_DUMMY:
+			    break;
+			 default:
+			    break;
+		   }
+         BossAI::JustSummoned(summon);
+       }
+
+	   
+	   void HealthBound(uint32 diff, uint32 HPUpdate) override
 	   {
 		   if (events.IsInPhase(THE_HUNTRESS))
 		   {
-		      events.ScheduleEvent(EVENT_MOON_GLAIVE, Seconds(17));
-		      events.ScheduleEvent(EVENT_TWILIGHT_GLAIVE, Seconds(22));
-		   }
-		   else
-			   PhaseGhost();
-	   }
-	   
-	   void PhaseGhost() override
-	   {
-		   if (events.IsInPhase(THE_CAPTAIN) || events.IsInPhase(THE_PRIESTESS))
-		   {
-			   me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-               me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-			   //AddAura Ghost
-			   events.ScheduleEvent(EVENT_BACK_TO_GHOST, Seconds(0));
-			   events.ScheduleEvent(EVENT_TWILIGHT_GLAIVE, Seconds(22));
-			   events.ScheduleEvent(EVENT_MOON_GLAIVE, Seconds(3));
-			   events.ScheduleEvent(EVENT_JUMP, Seconds(30));
-		   }
-		   else
-			   PhaseCombat();
-	   }
-	   
-	   void ExecuteEvent(uint32 eventId) override
-	   {
-		   switch (eventId)
-		   {
-			   case EVENT_MOON_GLAIVE:
+			   Creature* yathae = instance->GetCreature(DATA_CAPTAIN_YATHAE_MOONSTRIKE);
+			   Creature* lunaspyre = instance->GetCreature(DATA_PRIESTESS_LUNASPYRE);
+			   HPUpdate = 1000;
+			   
+			   if (HPUpdate <= diff)
 			   {
-				   if (events.IsInPhase(THE_HUNTRESS))
-					   DoCastVictim(SPELL_MOON_GLAIVE);
-				   events.Repeat(Seconds(17));
-
-                   if (events.IsInPhase(THE_CAPTAIN) || events.IsInPhase(THE_CAPTAIN))
-                   {
-				     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-						   DoCast(target, SPELL_MOON_GLAIVE,true);//SPELL_MOON_GLAIVE Instant Cast no debuff
-					    events.Repeat(Seconds(3));
-				   }
-				   break;
+				   yathae->SetHealth(me->GetHealth);
+				   lunaspyre->SetHealth(me->GetHealth);
 			   }
-			   case EVENT_TWILIGHT_GLAIVE:
-			           if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-						   DoCast(target, SPELL_TWILIGHT_GLAIVE_AT);
-					   events.Repeat(Seconds(22));
-					   break;
-			   case EVENT_GLAIVE_STORM:
-			   //TODO
-			   break;
-			 default:
-			   break;
+			   else HPUpdate -= diff;
 		   }
-	   }
-	   
+	   };
+				   
 	   void UpdateAI(uint32 diff) override
 	   {
 		   if (!UpdateVictim())
@@ -389,13 +364,30 @@ public:
 		   
 		   while (uint32 eventId = events.ExecuteEvent())
 		   {
-			   ExecuteEvent(eventId);
-			   if (me->HasUnitState(UNIT_STATE_CASTING))
-				   return;
+			   
+		      switch (eventId)
+		      {
+			      case EVENT_MOON_GLAIVE:
+			      {
+					 DoCastVictim(SPELL_MOON_GLAIVE);
+				     events.Repeat(Seconds(17));
+				  }
+				  break;
+			   
+			      case EVENT_TWILIGHT_GLAIVE:
+			           if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+						   DoCast(target, SPELL_TWILIGHT_GLAIVE_AT);
+					   events.Repeat(Seconds(22));
+				  break;
+			      case EVENT_GLAIVE_STORM:
+			           //TODO
+			      break;
+			   default:
+			      break;
+			  }
 		   }
-		   
-		   DoMeleeAttackIfReady();
 	   }
+	   
    };
    
    CreatureAI* GetAI(Creature* creature) const override
@@ -419,7 +411,7 @@ public:
 			{
 				 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                  me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-				 //Remove Ghost Aura
+				 me->RemoveAura(SPELL_GHOST_AURA);
 				 events.ScheduleEvent(EVENT_TELEPORT_CENTER_COMBAT, Seconds(0));
 			}
 			else
@@ -540,11 +532,55 @@ public:
 	}
 };
 
-
+class spell_twilight_glaive : public SpellScriptLoader
+{
+public:
+    spell_twilight_glaive() : SpellScriptLoader("spell_twilight_glaive") { }
+	
+	class spell_twilight_glaive_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_twilight_glaive_SpellScript);
+		
+		bool Validate(SpellInfo const* /*spellInfo*/) override
+		{
+			return ValidateSpellInfo({ SPELL_TWILIGHT_GLAIVE_AT, 
+			                           SPELL_TWILIGHT_GLAIVE_DAMAGE, 
+			                           SPELL_TWILIGHT_GLAIVE_DUMMY });
+        }
+		
+		void HandleOnCast() 
+		{
+			//Red Arrow in Kasparian Feets
+		}
+		
+		void HandleAfterCast()
+		{
+			//Summon Creature, then add aura to that creature, then creature go to target, then when reach go to caster
+		}
+		
+		void Register() override
+		{
+			OnCast += SpellCastFn(spell_twilight_glaive_SpellScript::HandleOnCast);
+			AfterCast += SpellCastFn(spell_twilight_glaive_SpellScript::HandleAfterCast);
+		}
+	};
+	
+	SpellScript* GetSpellScript() const override
+	{
+		return new spell_twilight_glaive_SpellScript();
+	}
+};
+			
 void AddSC_boss_sisters_of_the_moon()
 {
-	new boss_captain_yathae_moonstrike();
+	//Kasparian
 	new boss_huntress_kasparian();
+	new spell_twilight_glaive();
+	//Yathae
+	new boss_captain_yathae_moonstrike();
+	//Lunaspyre
 	new boss_priestess_lunaspyre();
+	
+	//General
 	new boss_sisters_of_the_moon();
 }

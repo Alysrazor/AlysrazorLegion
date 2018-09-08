@@ -23,25 +23,25 @@
 #define ToSScriptName "instance_tomb_of_sargeras"
 #define DataHeader   "ToS"
 
+uint32 const EncounterCount     = 9;
 
-enum DataTypes
+
+enum ToSDataTypes
 {
-    DATA_GOROTH                 = 0,
-    DATA_DEMONIC_INQUISITION    = 1,
-    DATA_HARJATAN               = 2,
-    DATA_SISTERS_OF_THE_MOON    = 3,
-    DATA_SASSZINE               = 4,
-    DATA_DESOLATE_HOST          = 5,
-    DATA_MAIDEN_OF_VIGILANCE    = 6,
-    DATA_FALLEN_AVATAR          = 7,
-    DATA_KILJAEDEN              = 8,
+    DATA_GOROTH                    = 0,
+    DATA_DEMONIC_INQUISITION       = 1,
+    DATA_HARJATAN                  = 2,
+    DATA_SISTERS_OF_THE_MOON       = 3,
+    DATA_SASSZINE                  = 4,
+    DATA_DESOLATE_HOST             = 5,
+    DATA_MAIDEN_OF_VIGILANCE       = 6,
+    DATA_FALLEN_AVATAR             = 7,
+    DATA_KILJAEDEN                 = 8,
 
     //Aditional Data
     DATA_HUNTRESS_KASPARIAN        = 9,
     DATA_CAPTAIN_YATHAE_MOONSTRIKE = 10,
     DATA_PRIESTESS_LUNASPYRE       = 11,
-
-    DATA_MAX_ENCOUNTERS
 };
 
 enum Creatures
