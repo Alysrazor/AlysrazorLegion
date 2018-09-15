@@ -44,7 +44,7 @@ enum MonkSpells
     SPELL_MONK_SOOTHING_MIST                            = 115175,
     SPELL_MONK_STANCE_OF_THE_SPIRITED_CRANE             = 154436,
     SPELL_MONK_SURGING_MIST_HEAL                        = 115175,
-	SPELL_MONK_SOOTHING_MIST                            = 193884,
+	SPELL_MONK_SOOTHING_MIST_PASIVE                     = 193884,
 	SPELL_MONK_EFFUSE                                   = 116694,
 	SPELL_MONK_ENBELOPING_MIST                          = 124682,
 	SPELL_MONK_VIVIFY                                   = 116670,
