@@ -90,6 +90,10 @@ enum SistersSpells
     SPELL_INCORPOREAL_TELEPORT_2 = 236224, //Not sure if this is the teleport or need script. Instant cast. These two teleport spells are the same for Lunaspyre
     SPELL_COOLDOWN_CREATURE_SPECIAL = 61207, //To block other spells from interfering with their special
 	SPELL_GHOST_AURA = 235268, //Cosmetic for Sisters
+    SPELL_ELUNE_FOUNTAIN = 236357, //Create AT 11284
+    SPELL_LUNAR_SUFFUSION = 234995, //Add the aura every 3 seconds on the bright side
+    SPELL_UMBRA_SUFFUSION = 234996, //Add the aura every 3 seconds on the dark side
+    SPELL_ASTRAL_PURGE = 234998, //Will trigger on change side in Fountain of Elune, and reset Suffusion marks.
     //Kasparian
     SPELL_TWILIGHT_GLAIVE_AT = 236529,// AT 9785 and add aura to bunny + make bunny got target,then return
     SPELL_TWILIGHT_GLAIVE_DAMAGE = 236541,
@@ -139,6 +143,7 @@ enum SistersEvents
     EVENT_EMBRACE_OF_THE_ECLIPSE,
     EVENT_LUNAR_BEACON,
     EVENT_LUNAR_FIRE,
+	EVENT_LUNAR_STRIKE,
     EVENT_MOON_BURN
 };
 
@@ -550,7 +555,9 @@ public:
                     break;
                 }
             }
-            DoMeleeAttackIfReady();
+			if (!events.IsInPhase(THE_CAPTAIN))
+                DoSpellAttackIfReady(SPELL_SHADOW_SHOT);
+			else DoMeleeAttackIfReady();
         }
     };
 };
@@ -602,13 +609,13 @@ public:
 		   
 		   else if (events.IsInPhase(THE_HUNTRESS))
 		   {
-			   Creature* kasparian = instance->GetCreature(DATA_HUNTRESS_KASPARIAN)
+               Creature* kasparian = instance->GetCreature(DATA_HUNTRESS_KASPARIAN);
 			   kasparian->AI()->Talk(SAY_SISTER_KILLS);
 		   }
 		   
 		   else if (events.IsInPhase(THE_CAPTAIN))
 		   {
-			   Creature* yathae = instance->GetCreature(DATA_CAPTAIN_YATHAE_MOONSTRIKE)
+               Creature* yathae = instance->GetCreature(DATA_CAPTAIN_YATHAE_MOONSTRIKE);
 			   yathae->AI()->Talk(SAY_SISTER_KILLS);
 		   }
 	   }
@@ -617,7 +624,7 @@ public:
 	   {
 		   if (events.IsInPhase(SISTER_GHOST) && !HealthAbovePct(40))
 		   {
-			   events.SetPhase(THE_PRIESTESS)
+               events.SetPhase(THE_PRIESTESS);
 			   me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                me->RemoveAura(SPELL_GHOST_AURA);
@@ -637,7 +644,7 @@ public:
                 {
                     uint32 lunaspyreHP = me->GetHealth();
                     kasparian->SetHealth(lunaspyreHP);
-                    lunaspyre->SetHealth(lunaspyreHP);
+                    yathae->SetHealth(lunaspyreHP);
                 }
                 else HPUpdate -= diff;
             }
@@ -666,6 +673,16 @@ public:
 				        DoCastVictim(SPELL_LUNAR_FIRE);
 				   events.Repeat(Seconds(25));
 				   break;
+				   case EVENT_MOON_BURN:
+				        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+							DoCast(target, SPELL_MOON_BURN);
+						events.Repeat(Seconds(14));
+				   break;
+				   case EVENT_LUNAR_STRIKE:
+				        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+							DoCast(target, SPELL_LUNAR_STRIKE);
+						events.Repeat(Seconds(16));
+				   break;
 				 default:
 				   break;
 			   }
@@ -673,13 +690,13 @@ public:
 		   
 		   if (!events.IsInPhase(THE_PRIESTESS))
 			   DoSpellAttackIfReady(SPELL_LUNAR_STRIKE);
-		   else DoMeleeAttackIfReady();
+		   DoMeleeAttackIfReady();
 	   }
    };
-   
-   Creature* GetAI(Creature* creature) const override
+
+   CreatureAI* GetAI(Creature* creature) const override
    {
-	   return GetTombOfSargerasAI<boss_priestess_lunaspyreAI>(creature);
+       return GetTombOfSargerasAI<boss_priestess_lunaspyreAI>(creature);
    }
 };
 		
@@ -692,6 +709,9 @@ public:
        
     }
 };*/
+
+
+//Kasparian Spells & ATs
 struct at_twilight_glaive : AreaTriggerAI
 {
 	at_twilight_glaive(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
@@ -738,6 +758,74 @@ struct at_twilight_glaive : AreaTriggerAI
 		at->Remove();
 	}
 };
+
+//Yathae Spells & AT
+
+//Lunasypre Spells & AT
+class spell_lunar_beacon : public SpellScriptLoader
+{
+public:
+    spell_lunar_beacon() : SpellScriptLoader("spell_lunar_beacon") { }
+
+    class spell_lunar_beacon_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_lunar_beacon_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo({ SPELL_LUNAR_BARRAGE_AT });
+        }
+
+        void HandleRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+        {
+            if (GetCaster())
+            {
+                AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
+                if (removeMode == AURA_REMOVE_BY_EXPIRE)
+                    GetCaster()->CastSpell(GetTarget(), SPELL_LUNAR_BARRAGE_AT, true);
+            }
+            
+        }
+
+        void Register() override
+        {
+            OnEffectRemove += AuraEffectRemoveFn(spell_lunar_beacon_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+        }
+    }; 
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_lunar_beacon_AuraScript();
+    }
+};
+
+struct at_lunar_barrage : AreaTriggerAI
+{
+    at_lunar_barrage(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    void OnUnitEnter(Unit* /*unit*/) override
+    {
+        if (Unit* caster = at->GetCaster())
+            if (Unit* target = at->GetTarget())
+                if (caster->IsValidAttackTarget(target))
+                    caster->CastSpell(target, SPELL_LUNAR_BARRAGE_DAMAGE, true);
+    }
+
+    void OnUnitExit(Unit* /*unit*/) override
+    {
+        if (Unit* caster = at->GetCaster())
+            if (Unit* target = at->GetTarget())
+                if (caster->IsValidAttackTarget(target))
+                    target->RemoveAurasDueToSpell(SPELL_LUNAR_BARRAGE_DAMAGE);
+    }
+
+    void OnUpdate(uint32 diff) override
+    {
+        if (Unit* caster = at->GetCaster())
+            if (!caster->IsInCombat())
+                at->Remove();
+    }
+};
 			
 void AddSC_boss_sisters_of_the_moon()
 {
@@ -748,7 +836,9 @@ void AddSC_boss_sisters_of_the_moon()
 	//Yathae
 	new boss_captain_yathae_moonstrike();
 	//Lunaspyre
-	//new boss_priestess_lunaspyre();
+	new boss_priestess_lunaspyre();
+    new spell_lunar_beacon();
+    RegisterAreaTriggerAI(at_lunar_barrage);
 	
 	//General
 	new boss_sisters_of_the_moon();

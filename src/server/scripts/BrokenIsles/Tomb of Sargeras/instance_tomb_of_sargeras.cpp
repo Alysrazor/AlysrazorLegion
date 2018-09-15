@@ -60,14 +60,14 @@ public:
 	{
 	    instance_tomb_of_sargeras_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
         {
-            SetHeaders(DataHeader);
+            /*SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
             LoadDoorData(doorData);
-            LoadObjectData(creatureData, nullptr);
+            LoadObjectData(creatureData, nullptr);*/
         }
 		
 		
-		void OnCreatureCreate(Creature* creature) override
+		/*void OnCreatureCreate(Creature* creature) override
 		{
 		    switch (creature->GetEntry())
                 {
@@ -104,7 +104,7 @@ public:
 			  default:
 			      break;
 		    }
-	    }
+	    }*/
 	};
 	
 	InstanceScript* GetInstanceScript(InstanceMap* map) const override

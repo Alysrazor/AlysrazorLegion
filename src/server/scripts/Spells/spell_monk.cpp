@@ -27,6 +27,9 @@
 #include "SpellMgr.h"
 #include "SpellScript.h"
 #include "Unit.h"
+#include "Pet.h"
+#include "WorldSession.h"
+#include "Player.h"
 
 enum MonkSpells
 {
@@ -34,13 +37,180 @@ enum MonkSpells
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_CHI_PROC        = 123333,
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_KNOCKBACK       = 117962,
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_KNOCKBACK_CD    = 117953,
+	SPELL_MONK_FISTS_OF_FURY                            = 178345,
+	SPELL_MONK_FISTS_OF_FURY_DAMAGE                     = 117418,
     SPELL_MONK_PROVOKE_SINGLE_TARGET                    = 116189,
     SPELL_MONK_PROVOKE_AOE                              = 118635,
     SPELL_MONK_SOOTHING_MIST                            = 115175,
     SPELL_MONK_STANCE_OF_THE_SPIRITED_CRANE             = 154436,
     SPELL_MONK_SURGING_MIST_HEAL                        = 116995,
 };
+// 119996 - Transcendence
+class spell_transcendence : public SpellScriptLoader
+{
+public:
+    spell_transcendence() : SpellScriptLoader("spell_transcendence") { }
 
+    class SwiftmendSpellScript : public SpellScript
+    {
+        PrepareSpellScript(SwiftmendSpellScript);
+
+        void HandleAfterCast()
+        {
+            // upon on hit make all the chains spells
+            if (!GetCaster())
+                return;
+            Player* player = GetCaster()->ToPlayer();
+            if (!player)
+                return;
+
+            // Remove Current Trans
+            if (Creature* CurrentTrasendanceTrigger = player->FindNearestCreature(54569, 500.0f, true))
+            {
+                if (CurrentTrasendanceTrigger->IsSummon())
+                    CurrentTrasendanceTrigger->DespawnOrUnsummon(500);
+            }
+
+            // Summons new one
+            Pet* TriggerTransdence = player->SummonPet(54569, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), MAX_PET_TYPE, 900000);
+      
+            TriggerTransdence->Respawn();
+            TriggerTransdence->SetFullHealth();
+
+
+            //Stun Movement
+            TriggerTransdence->CastSpell(TriggerTransdence, 52165);
+
+            //Clone player's look
+            player->CastSpell(TriggerTransdence, 45204);
+
+            //Visual meditation effect
+            TriggerTransdence->CastSpell(TriggerTransdence, 119053);
+
+            // gliff of fighting pose
+            if (player->HasAura(125872))
+                TriggerTransdence->HandleEmoteCommand(27);
+
+        }
+
+        void Register()
+        {
+            AfterCast += SpellCastFn(SwiftmendSpellScript::HandleAfterCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new SwiftmendSpellScript();
+    }
+};
+
+class spell_monk_transcendence_transfer : public SpellScriptLoader
+{
+public:
+    spell_monk_transcendence_transfer() : SpellScriptLoader("spell_monk_transcendence_transfer") { }
+
+    class spell_monk_transcendence_transfer_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_monk_transcendence_transfer_SpellScript);
+
+        SpellCastResult CheckRange()
+        {
+            if (Player* _player = GetCaster()->ToPlayer())
+            {
+                if (Pet* CurrentTrasendanceTrigger = _player->GetPet())
+                {
+                    if (CurrentTrasendanceTrigger->GetEntry() == 54569)
+                    {
+                        if (_player->IsWithinDistInMap(CurrentTrasendanceTrigger, GetSpellInfo()->GetMaxRange(true, GetCaster(), GetSpell()), true))
+                            return SPELL_CAST_OK;
+                    }
+                }
+            }
+            return SPELL_FAILED_OUT_OF_RANGE;
+        }
+
+        void HandleAfterCast()
+        {
+            Player* player = GetCaster()->ToPlayer();
+
+            if (Pet* CurrentTrasendanceTrigger = player->GetPet())
+            {
+                if (CurrentTrasendanceTrigger->GetEntry() == 54569)
+                {
+                    float X_Trigger = CurrentTrasendanceTrigger->GetPositionX();
+                    float Y_Trigger = CurrentTrasendanceTrigger->GetPositionY();
+                    float Z_Trigger = CurrentTrasendanceTrigger->GetPositionZ();
+                    float O_Trigger = CurrentTrasendanceTrigger->GetOrientation();
+
+                    CurrentTrasendanceTrigger->Relocate(player->GetPositionX(), player->GetPositionY());
+
+                    if (MotionMaster* motion = CurrentTrasendanceTrigger->GetMotionMaster())
+                    {
+                        CurrentTrasendanceTrigger->ClearUnitState(UNIT_STATE_ROOT);
+                        CurrentTrasendanceTrigger->SetSpeed(MOVE_RUN, 100.0f);
+                        motion->MovePoint(1, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
+                        CurrentTrasendanceTrigger->SetSpeed(MOVE_RUN, 0.0f);
+                        CurrentTrasendanceTrigger->AddUnitState(UNIT_STATE_ROOT);
+
+                    }
+                    // player
+                    player->TeleportTo(CurrentTrasendanceTrigger->GetMapId(), X_Trigger, Y_Trigger, Z_Trigger, O_Trigger);
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnCheckCast += SpellCheckCastFn(spell_monk_transcendence_transfer_SpellScript::CheckRange);
+            AfterCast += SpellCastFn(spell_monk_transcendence_transfer_SpellScript::HandleAfterCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_monk_transcendence_transfer_SpellScript();
+    }
+};
+// 178345 - Fists of Fury
+class spell_monk_fists_of_fury : public SpellScript
+{
+	PrepareSpellScript(spell_monk_fists_of_fury);
+	
+	bool Validate(SpellInfo const* /*spellInfo*/) override
+	{
+		return ValidateSpellInfo({ SPELL_MONK_FISTS_OF_FURY });
+    }
+	
+	void HandleOnCast()
+	{
+		Unit* caster = GetCaster();
+        Unit* target = GetExplTargetUnit();
+		
+		if (!caster)
+			return;
+
+        if (!target || target)
+            caster->CastSpell(caster, SPELL_MONK_FISTS_OF_FURY);
+	}
+
+    void HandleOnHit()
+    {
+        Unit* caster = GetCaster();
+
+        if (!caster->GetTarget())
+            return;
+    }
+
+	
+	void Register() override
+	{
+		OnCast += SpellCastFn(spell_monk_fists_of_fury::HandleOnCast);
+        OnHit += SpellHitFn(spell_monk_fists_of_fury::HandleOnHit);
+	}
+};
+	
+	
 // 117952 - Crackling Jade Lightning
 class spell_monk_crackling_jade_lightning : public AuraScript
 {
@@ -164,4 +334,7 @@ void AddSC_monk_spell_scripts()
     RegisterAuraScript(spell_monk_crackling_jade_lightning);
     RegisterAuraScript(spell_monk_crackling_jade_lightning_knockback_proc_aura);
     RegisterSpellScript(spell_monk_provoke);
+    new spell_monk_fists_of_fury();
+    new spell_transcendence();
+    new spell_monk_transcendence_transfer();
 }
