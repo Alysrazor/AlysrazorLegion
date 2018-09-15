@@ -37,15 +37,20 @@ enum MonkSpells
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_CHI_PROC        = 123333,
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_KNOCKBACK       = 117962,
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_KNOCKBACK_CD    = 117953,
-	SPELL_MONK_FISTS_OF_FURY                            = 178345,
+	SPELL_MONK_FISTS_OF_FURY                            = 113656,
 	SPELL_MONK_FISTS_OF_FURY_DAMAGE                     = 117418,
     SPELL_MONK_PROVOKE_SINGLE_TARGET                    = 116189,
     SPELL_MONK_PROVOKE_AOE                              = 118635,
     SPELL_MONK_SOOTHING_MIST                            = 115175,
     SPELL_MONK_STANCE_OF_THE_SPIRITED_CRANE             = 154436,
-    SPELL_MONK_SURGING_MIST_HEAL                        = 116995,
+    SPELL_MONK_SURGING_MIST_HEAL                        = 115175,
+	SPELL_MONK_SOOTHING_MIST                            = 193884,
+	SPELL_MONK_EFFUSE                                   = 116694,
+	SPELL_MONK_ENBELOPING_MIST                          = 124682,
+	SPELL_MONK_VIVIFY                                   = 116670,
+	SPELL_MONK_LIFE_COCOON                              = 116849,
 };
-// 119996 - Transcendence
+// 101643 - Transcendence
 class spell_transcendence : public SpellScriptLoader
 {
 public:
@@ -76,6 +81,8 @@ public:
       
             TriggerTransdence->Respawn();
             TriggerTransdence->SetFullHealth();
+			TriggerTransdence->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+			TriggerTransdence->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
 
             //Stun Movement
@@ -105,6 +112,7 @@ public:
     }
 };
 
+//119996
 class spell_monk_transcendence_transfer : public SpellScriptLoader
 {
 public:
