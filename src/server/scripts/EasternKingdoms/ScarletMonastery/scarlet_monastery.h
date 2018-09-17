@@ -42,7 +42,8 @@ enum SMDataTypes
     DATA_HIGH_INQUISITOR_FAIRBANKS  = 11,
     DATA_HOUNDMASTER_LOKSEY         = 12,
     DATA_INTERROGATOR_VISHAS        = 13,
-    DATA_SCORN                      = 14
+    DATA_SCORN                      = 14,
+	DATA_WHITEMANE_CUSTOM           = 15,
 };
 
 enum SMCreatureIds
@@ -53,7 +54,9 @@ enum SMCreatureIds
 
     NPC_HORSEMAN                    = 23682,
     NPC_HEAD                        = 23775,
-    NPC_PUMPKIN                     = 23694
+    NPC_PUMPKIN                     = 23694,
+	
+	NPC_WHITEMANE_CUSTOM            = 735900,
 };
 
 enum SMGameObjectIds

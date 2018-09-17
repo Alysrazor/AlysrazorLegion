@@ -93,6 +93,9 @@ class instance_scarlet_monastery : public InstanceMapScript
                     case NPC_VORREL:
                         VorrelGUID = creature->GetGUID();
                         break;
+					case NPC_WHITEMANE_CUSTOM:
+					    WhitemaneCustomGUID = creature->GetGUID();
+					    break;
                     default:
                         break;
                 }
@@ -146,6 +149,8 @@ class instance_scarlet_monastery : public InstanceMapScript
                         return WhitemaneGUID;
                     case DATA_VORREL:
                         return VorrelGUID;
+					case DATA_WHITEMANE_CUSTOM:
+					    return WhitemaneCustomGUID;
                     default:
                         break;
                 }
@@ -159,6 +164,7 @@ class instance_scarlet_monastery : public InstanceMapScript
             ObjectGuid MograineGUID;
             ObjectGuid WhitemaneGUID;
             ObjectGuid VorrelGUID;
+			ObjectGuid WhitemaneCustomGUID;
 
             GuidSet HorsemanAdds;
         };

@@ -26,7 +26,6 @@
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
-#include "SpellHistory.h"
 #include "Unit.h"
 #include "Pet.h"
 #include "WorldSession.h"
