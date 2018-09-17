@@ -102,6 +102,7 @@ public:
 			events.ScheduleEvent(EVENT_HEAL, Seconds(65), PHASE_1);
 			events.ScheduleEvent(EVENT_HALO, Seconds(55), PHASE_1);
 			events.ScheduleEvent(EVENT_DIVINE_STAR, Seconds(20), PHASE_1);
+			events.ScheduleEvent(EVENT_HOLY_WRATH, Minutes(8));
 		}
 		
 		void JustSummoned(Creature* summon) override
