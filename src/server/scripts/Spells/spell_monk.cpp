@@ -26,6 +26,7 @@
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
+#include "SpellHistory.h"
 #include "Unit.h"
 #include "Pet.h"
 #include "WorldSession.h"
@@ -46,7 +47,7 @@ enum MonkSpells
     SPELL_MONK_SURGING_MIST_HEAL                        = 115175,
 	SPELL_MONK_SOOTHING_MIST_PASIVE                     = 193884,
 	SPELL_MONK_EFFUSE                                   = 116694,
-	SPELL_MONK_ENBELOPING_MIST                          = 124682,
+	SPELL_MONK_ENVELOPING_MIST                          = 124682,
 	SPELL_MONK_VIVIFY                                   = 116670,
 	SPELL_MONK_LIFE_COCOON                              = 116849,
 };
@@ -111,7 +112,139 @@ public:
         return new SwiftmendSpellScript();
     }
 };
+/*SPELL_MONK_EFFUSE                                   = 116694,
+	SPELL_MONK_ENVELOPING_MIST                          = 124682,
+	SPELL_MONK_VIVIFY                                   = 116670,
+	SPELL_MONK_LIFE_COCOON                              = 116849,*/
+class spell_monk_soothing_mist : SpellScriptLoader
+{
+public:
+	 spell_monk_soothing_mist() : SpellScriptLoader("spell_monk_soothing_mist") { }
+	 
+	 class spell_monk_effuse : public SpellScript
+	 {
+         PrepareSpellScript(spell_monk_effuse);
 
+		 bool Validate(SpellInfo const* /*spellInfo*/) override
+		 {
+			 return ValidateSpellInfo({ SPELL_MONK_EFFUSE });
+		 }
+		 
+		 void HandleAfterCast()
+		 {
+			 Unit* caster = GetCaster();
+             Unit* target = GetExplTargetUnit();
+			 
+			 if (!caster)
+				 return;
+			 
+			 if (!target)
+				 caster->CastSpell(caster, SPELL_MONK_SOOTHING_MIST, true);
+			 else if (target->IsValidAssistTarget(caster))
+				 caster->CastSpell(target, SPELL_MONK_SOOTHING_MIST, true);
+		 }
+		 
+		 void Register() override
+		 {
+             AfterCast += SpellCastFn(spell_monk_effuse::HandleAfterCast);
+		 }
+     };
+	 
+	 class spell_monk_enveloping_mist : public SpellScript
+	 {
+         PrepareSpellScript(spell_monk_enveloping_mist);
+
+		 bool Validate(SpellInfo const* /*spellInfo*/) override
+		 {
+			 return ValidateSpellInfo({ SPELL_MONK_ENVELOPING_MIST });
+		 }
+		 
+         void HandleAfterCast()
+         {
+             Unit* caster = GetCaster();
+             Unit* target = GetExplTargetUnit();
+
+             if (!caster)
+                 return;
+
+             if (!target)
+                 caster->CastSpell(caster, SPELL_MONK_SOOTHING_MIST, true);
+             else if (target->IsValidAssistTarget(caster))
+                 caster->CastSpell(target, SPELL_MONK_SOOTHING_MIST, true);
+         }
+		 
+		 void Register() override
+		 {
+			 AfterCast += SpellCastFn(spell_monk_enveloping_mist::HandleAfterCast);
+		 }
+     };
+	 
+	 class spell_monk_vivify : public SpellScript
+	 {
+         PrepareSpellScript(spell_monk_vivify);
+
+		 bool Validate(SpellInfo const* /*spellInfo*/) override
+		 {
+			 return ValidateSpellInfo({ SPELL_MONK_VIVIFY });
+		 }
+		 
+         void HandleAfterCast()
+         {
+             Unit* caster = GetCaster();
+             Unit* target = GetExplTargetUnit();
+
+             if (!caster)
+                 return;
+
+             if (!target)
+                 caster->CastSpell(caster, SPELL_MONK_SOOTHING_MIST, true);
+             else if (target->IsValidAssistTarget(caster))
+                 caster->CastSpell(target, SPELL_MONK_SOOTHING_MIST, true);
+         }
+		 
+		 void Register() override
+		 {
+			 AfterCast += SpellCastFn(spell_monk_vivify::HandleAfterCast);
+		 }
+     };
+	 
+	 class spell_monk_life_cocoon : public SpellScript
+	 {
+         PrepareSpellScript(spell_monk_life_cocoon);
+
+		 bool Validate(SpellInfo const* /*spellInfo*/) override
+		 {
+			 return ValidateSpellInfo({ SPELL_MONK_LIFE_COCOON });
+		 }
+		 
+         void HandleAfterCast()
+         {
+             Unit* caster = GetCaster();
+             Unit* target = GetExplTargetUnit();
+
+             if (!caster)
+                 return;
+
+             if (!target)
+                 caster->CastSpell(caster, SPELL_MONK_SOOTHING_MIST, true);
+             else if (target->IsValidAssistTarget(caster))
+                 caster->CastSpell(target, SPELL_MONK_SOOTHING_MIST, true);
+         }
+		 
+		 void Register() override
+		 {
+			 AfterCast += SpellCastFn(spell_monk_life_cocoon::HandleAfterCast);
+		 }
+     };
+	 
+	 SpellScript* GetSpellScript() const override
+	 {
+		 return new spell_monk_effuse();
+		 return new spell_monk_enveloping_mist();
+		 return new spell_monk_vivify();
+		 return new spell_monk_life_cocoon();
+	 }
+};
 //119996
 class spell_monk_transcendence_transfer : public SpellScriptLoader
 {
@@ -345,4 +478,5 @@ void AddSC_monk_spell_scripts()
     new spell_monk_fists_of_fury();
     new spell_transcendence();
     new spell_monk_transcendence_transfer();
+	new spell_monk_soothing_mist();
 }
