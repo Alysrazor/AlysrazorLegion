@@ -365,9 +365,9 @@ enum NPCsSpells
 	SPELL_HAMMER_JUSTICE     = 853,
 	SPELL_SHIELD_VENGANCE    = 184662,
 	//Priest
-    SPELL_SMITE_PRIEST       = 585,
-	SPELL_SHIELD             = 17,
-    SPELL_HEAL               = 222089,
+    //SPELL_SMITE_PRIEST       = 585,
+	//SPELL_SHIELD             = 17,
+    //SPELL_HEAL               = 222089,
 	//Warrior
 	SPELL_BLADESTORM         = 46924,
 	SPELL_COLOSSAL_SMASH     = 167105,
@@ -534,7 +534,7 @@ public:
                     {
                        int32 damage = 900000;
                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                           me->CastCustomSpell(target, SPELL_SMITE_PRIEST, &damage, NULL, NULL, false);
+                           me->CastCustomSpell(target, SPELL_SMITE, &damage, NULL, NULL, false);
                        events.Repeat(Seconds(5));
                     }
                     break;
