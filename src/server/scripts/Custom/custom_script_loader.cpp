@@ -16,11 +16,11 @@
  */
 
 // This is where scripts' loading functions should be declared:
-void AddSC_whitemane_custom();
+//void AddSC_boss_whitemane_custom();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddCustomScripts()
 {
-	AddSC_whitemane_custom();
+	//AddSC_boss_whitemane_custom();
 }

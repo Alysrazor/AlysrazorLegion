@@ -57,6 +57,9 @@ enum SMCreatureIds
     NPC_PUMPKIN                     = 23694,
 	
 	NPC_WHITEMANE_CUSTOM            = 735900,
+    NPC_SCARLET_CRUSADER            = 735901,
+    NPC_SCARLET_PRIEST              = 735902,
+    NPC_SCARLET_WARRIOR             = 735903
 };
 
 enum SMGameObjectIds
