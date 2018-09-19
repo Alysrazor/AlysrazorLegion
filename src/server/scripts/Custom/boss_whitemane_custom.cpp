@@ -35,6 +35,20 @@ enum Spells
 	SPELL_HOLY_WRATH      = 227823,
 };
 
+enum NPCsSpells
+{
+    //Crusader
+    SPELL_CRUSADER_STRIKE = 218343,
+    SPELL_TEMPLAR_VERDICT = 167993,
+    SPELL_HAMMER_JUSTICE = 853,
+    SPELL_SHIELD_VENGANCE = 184662,
+    //Priest
+    //Warrior
+    SPELL_BLADESTORM = 167232,
+    SPELL_COLOSSAL_SMASH = 191100,
+    SPELL_MORTAL_STRIKE = 172769,
+};
+
 enum Says
 {
 	SAY_AGGRO             = 1,
@@ -90,12 +104,12 @@ public:
 		void Reset() override
 		{
 			_Reset();
-			events.SetPhase(PHASE_1);
 		}
 		
-		void EnterCombat(Unit* who) override
+		void EnterCombat(Unit* /*who*/) override
 		{
 			_EnterCombat();
+			events.SetPhase(PHASE_1);
 			instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE);
 			DoZoneInCombat();
 			events.ScheduleEvent(EVENT_SMITE, Seconds(6), 0, PHASE_1);
@@ -135,13 +149,18 @@ public:
 			Talk(SAY_EVADE);
 			_DespawnAtEvade();
 			instance->SetBossState(DATA_WHITEMANE_CUSTOM, FAIL);
+			summons.DespawnAll();
 			
 
             std::list<Player*> playerList;
 			GetPlayerListInGrid(playerList,me, 300.0f);
 			
             for (auto itr : playerList)
+            {
                 itr->RemoveAura(SPELL_HOLY_WRATH);
+                itr->RemoveAura(SPELL_CRUSADER_STRIKE);
+            }
+                
 		}
 		
 		void KilledUnit(Unit* victim) override
@@ -156,6 +175,15 @@ public:
 			Talk(SAY_DIED);
 			summons.DespawnAll();
 			instance->SetBossState(DATA_WHITEMANE_CUSTOM, DONE);
+			
+			std::list<Player*> playerList;
+			GetPlayerListInGrid(playerList,me, 300.0f);
+			
+            for (auto itr : playerList)
+            {
+                itr->RemoveAura(SPELL_HOLY_WRATH);
+                itr->RemoveAura(SPELL_CRUSADER_STRIKE);
+            }
 		}
 		
         void UpdateAI(uint32 diff) override
@@ -184,37 +212,10 @@ public:
                 events.SetPhase(INTERPHASE);
                 Talk(SAY_INTERPHASE);
                 me->SetPosition(CombatZone[0]);
-                
-
-                while (me->HealthAbovePct(40) && events.IsInPhase(INTERPHASE))
-                {
-                    int c = RAND(1, 2, 3);
-                    uint32 wait = 10000;
-
-                    switch (c)
-                    {
-                        if (wait <= diff)
-                        {
-                           case 1:
-                             events.ScheduleEvent(EVENT_SUMM_CRUSADER1, Seconds(10), 0, INTERPHASE);
-                           wait = 10000;
-                           break;
-                           case 2:
-                             events.ScheduleEvent(EVENT_SUMM_CRUSADER2, Seconds(10), 0, INTERPHASE);
-                           wait = 10000;
-                           break;
-                           case 3:
-                             events.ScheduleEvent(EVENT_SUMM_CRUSADER3, Seconds(10), 0, INTERPHASE);
-                           wait = 10000;
-                           break;
-                         default:
-                           wait = 10000;
-                           break;
-
-                        }
-                        else wait -= diff;
-                    }
-                }
+				events.ScheduleEvent(EVENT_SUMM_CRUSADER1, Seconds(10), 0, INTERPHASE);
+				events.ScheduleEvent(EVENT_SUMM_CRUSADER2, Seconds(20), 0, INTERPHASE);
+				events.ScheduleEvent(EVENT_SUMM_CRUSADER3, Seconds(30), 0, INTERPHASE);
+            }
 
                 if (me->HealthBelowPct(45) && events.IsInPhase(INTERPHASE))
                 {
@@ -332,17 +333,20 @@ public:
                        {
                           me->SummonCreature(735901, SummonCrusaders[0], TEMPSUMMON_MANUAL_DESPAWN);
                           me->SummonCreature(735901, SummonCrusaders[1], TEMPSUMMON_MANUAL_DESPAWN);
+						  events.Repeat(Seconds(30));
                        }
                        break;
                        case EVENT_SUMM_CRUSADER2:
                        {
                           me->SummonCreature(735902, SummonCrusaders[0], TEMPSUMMON_MANUAL_DESPAWN);
                           me->SummonCreature(735902, SummonCrusaders[1], TEMPSUMMON_MANUAL_DESPAWN);
+						  events.Repeat(Seconds(30));
                        }
                        case EVENT_SUMM_CRUSADER3:
                        {
                            me->SummonCreature(735903, SummonCrusaders[0], TEMPSUMMON_MANUAL_DESPAWN);
                            me->SummonCreature(735903, SummonCrusaders[1], TEMPSUMMON_MANUAL_DESPAWN);
+						   events.Repeat(Seconds(30));
                        }
                        break;
                      default:
@@ -350,28 +354,11 @@ public:
                     
                     }
                 }
-            }
+            
             DoMeleeAttackIfReady();
         }
             
 	};
-};
-
-enum NPCsSpells
-{
-	//Crusader
-	SPELL_CRUSADER_STRIKE    = 35395,
-	SPELL_TEMPLAR_VERDICT    = 85256,
-	SPELL_HAMMER_JUSTICE     = 853,
-	SPELL_SHIELD_VENGANCE    = 184662,
-	//Priest
-    //SPELL_SMITE_PRIEST       = 585,
-	//SPELL_SHIELD             = 17,
-    //SPELL_HEAL               = 222089,
-	//Warrior
-	SPELL_BLADESTORM         = 46924,
-	SPELL_COLOSSAL_SMASH     = 167105,
-	SPELL_MORTAL_STRIKE      = 12294,
 };
 
 enum NpcsEvents
@@ -445,7 +432,7 @@ public:
                {
                     case EVENT_CRUSADER_STRIKE:
                     {
-                        int32 damage = 1500000;
+                        int32 damage = 650000;
                         Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO);
                         me->CastCustomSpell(target, SPELL_CRUSADER_STRIKE, &damage, NULL, NULL, false);
                         events.Repeat(Seconds(6));
@@ -540,11 +527,9 @@ public:
                     break;
                     case EVENT_SHIELD_PRIEST:
                     {
-                      int32 absorb = 7000000;
-                      if (me->HealthBelowPct(60))
-                          me->CastCustomSpell(me, SPELL_SHIELD, &absorb, NULL, NULL, false);
+                       int32 absorb = 7000000;
+                       me->CastCustomSpell(me, SPELL_SHIELD, &absorb, NULL, NULL, false);
                        events.Repeat(Seconds(30));
-
                     }
                     break;
                     case EVENT_HEAL_PRIEST:
@@ -560,8 +545,7 @@ public:
                     break;
                   default:
                     break;
-                }
-                  
+                } 
             }
             DoMeleeAttackIfReady();
 		}

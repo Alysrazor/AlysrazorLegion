@@ -116,6 +116,7 @@ void AddSC_boss_interrogator_vishas();
 void AddSC_boss_scorn();
 void AddSC_instance_scarlet_monastery();
 void AddSC_boss_mograine_and_whitemane();
+void AddSC_boss_whitemane_custom();
 void AddSC_boss_darkmaster_gandling();       //Scholomance
 void AddSC_boss_death_knight_darkreaver();
 void AddSC_boss_theolenkrastinov();
@@ -307,6 +308,7 @@ void AddEasternKingdomsScripts()
     AddSC_boss_scorn();
     AddSC_instance_scarlet_monastery();
     AddSC_boss_mograine_and_whitemane();
+	AddSC_boss_whitemane_custom();
     AddSC_boss_darkmaster_gandling();       //Scholomance
     AddSC_boss_death_knight_darkreaver();
     AddSC_boss_theolenkrastinov();
