@@ -39,13 +39,32 @@ public:
     {
         static std::vector<ChatCommand> achievementCommandTable =
         {
-            { "add", rbac::RBAC_PERM_COMMAND_ACHIEVEMENT_ADD, false, &HandleAchievementAddCommand, "" },
+            { "add",     rbac::RBAC_PERM_COMMAND_ACHIEVEMENT_ADD,     false, &HandleAchievementAddCommand,      "" },
+            { "addtest", rbac::RBAC_PERM_COMMAND_ACHIEVEMENT_ADDTEST, false, &HandleAchievementAddTestCommand,  "" },
         };
         static std::vector<ChatCommand> commandTable =
         {
             { "achievement", rbac::RBAC_PERM_COMMAND_ACHIEVEMENT,  false, NULL, "", achievementCommandTable },
         };
         return commandTable;
+    }
+
+    static bool HandleAchievementAddTestCommand(ChatHandler* handler, char const* args) //AchievementEntry const* achievementEntry)
+    {
+        if (!*args)
+            return false;
+
+        Player* target = handler->getSelectedPlayer();
+        AchievementEntry const* achievementEntry;
+        if (!target)
+        {
+            handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+        target->CompletedAchievement(achievementEntry);
+
+        return true;
     }
 
     static bool HandleAchievementAddCommand(ChatHandler* handler, char const* args)
