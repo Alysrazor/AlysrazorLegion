@@ -43,7 +43,6 @@ enum SMDataTypes
     DATA_HOUNDMASTER_LOKSEY         = 12,
     DATA_INTERROGATOR_VISHAS        = 13,
     DATA_SCORN                      = 14,
-	DATA_WHITEMANE_CUSTOM           = 15,
 };
 
 enum SMCreatureIds
@@ -54,12 +53,7 @@ enum SMCreatureIds
 
     NPC_HORSEMAN                    = 23682,
     NPC_HEAD                        = 23775,
-    NPC_PUMPKIN                     = 23694,
-	
-	NPC_WHITEMANE_CUSTOM            = 735900,
-    NPC_SCARLET_CRUSADER            = 735901,
-    NPC_SCARLET_PRIEST              = 735902,
-    NPC_SCARLET_WARRIOR             = 735903
+    NPC_PUMPKIN                     = 23694
 };
 
 enum SMGameObjectIds
