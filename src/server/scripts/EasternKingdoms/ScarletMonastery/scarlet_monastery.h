@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,33 +23,29 @@
 #define SMScriptName "instance_scarlet_monastery"
 #define DataHeader "SM"
 
-uint32 const EncounterCount = 10;
+uint32 const EncounterCount = 3;
 
 enum SMDataTypes
 {
-    DATA_MOGRAINE_AND_WHITE_EVENT   = 1,
-    DATA_MOGRAINE                   = 2,
-    DATA_WHITEMANE                  = 3,
-
-    DATA_HORSEMAN_EVENT             = 4,
-    DATA_PUMPKIN_SHRINE             = 5,
-
-    DATA_VORREL                     = 6,
-    DATA_ARCANIST_DOAN              = 7,
-    DATA_AZSHIR                     = 8,
-    DATA_BLOODMAGE_THALNOS          = 9,
-    DATA_HEROD                      = 10,
-    DATA_HIGH_INQUISITOR_FAIRBANKS  = 11,
-    DATA_HOUNDMASTER_LOKSEY         = 12,
-    DATA_INTERROGATOR_VISHAS        = 13,
-    DATA_SCORN                      = 14,
+	DATA_THALNOS                     = 1,
+	DATA_KORLOFF                     = 2,
+	
+	DATA_DURAND_AND_WHITE_EVENT      = 3,
+	DATA_DURAND		    			 = 4,
+	DATA_WHITEMANE					 = 5,
+	
+	DATA_HORSEMAN_EVENT				 = 6,
+	DATA_PUMPKIN_SHRINE				 = 7
 };
 
 enum SMCreatureIds
 {
-    NPC_MOGRAINE                    = 3976,
+	NPC_THALNOS                     = 59789,
+	
+	NPC_KORLOFF                     = 59223,
+	
+    NPC_DURAND                      = 60040,
     NPC_WHITEMANE                   = 3977,
-    NPC_VORREL                      = 3981,
 
     NPC_HORSEMAN                    = 23682,
     NPC_HEAD                        = 23775,

@@ -25,7 +25,7 @@ if (SCRIPTS MATCHES "dynamic")
 elseif(SCRIPTS MATCHES "static")
   set(SCRIPTS_DEFAULT_LINKAGE "static")
 else()
-  set(SCRIPTS_DEFAULT_LINKAGE "disabled")
+  set(SCRIPTS_DEFAULT_LINKAGE "dynamic")
 endif()
 # Sets SCRIPTS_USE_WHITELIST
 # Sets SCRIPTS_WHITELIST

@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2019 DrustWoW Servers
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,14 +25,14 @@
 
 DoorData const doorData[] =
 {
-    { GO_HIGH_INQUISITORS_DOOR, DATA_MOGRAINE_AND_WHITE_EVENT, DOOR_TYPE_ROOM },
+    { GO_HIGH_INQUISITORS_DOOR, DATA_DURAND_AND_WHITE_EVENT, DOOR_TYPE_ROOM },
     { 0,                        0,                             DOOR_TYPE_ROOM } // END
 };
 
 class instance_scarlet_monastery : public InstanceMapScript
 {
     public:
-        instance_scarlet_monastery() : InstanceMapScript(SMScriptName, 189) { }
+        instance_scarlet_monastery() : InstanceMapScript(SMScriptName, 1004) { }
 
         struct instance_scarlet_monastery_InstanceMapScript : public InstanceScript
         {
@@ -84,14 +85,17 @@ class instance_scarlet_monastery : public InstanceMapScript
                     case NPC_PUMPKIN:
                         HorsemanAdds.insert(creature->GetGUID());
                         break;
-                    case NPC_MOGRAINE:
-                        MograineGUID = creature->GetGUID();
+					case NPC_THALNOS:
+						ThalnosGUID = creature->GetGUID();
+						break;
+					case NPC_KORLOFF:
+						KorloffGUID = creature->GetGUID();
+						break;
+                    case NPC_DURAND:
+                        DurandGUID = creature->GetGUID();
                         break;
                     case NPC_WHITEMANE:
                         WhitemaneGUID = creature->GetGUID();
-                        break;
-                    case NPC_VORREL:
-                        VorrelGUID = creature->GetGUID();
                         break;
                     default:
                         break;
@@ -140,12 +144,14 @@ class instance_scarlet_monastery : public InstanceMapScript
             {
                 switch (type)
                 {
-                    case DATA_MOGRAINE:
-                        return MograineGUID;
+					case DATA_THALNOS:
+						return ThalnosGUID;
+					case DATA_KORLOFF:
+						return KorloffGUID;
+                    case DATA_DURAND:
+                        return DurandGUID;
                     case DATA_WHITEMANE:
                         return WhitemaneGUID;
-                    case DATA_VORREL:
-                        return VorrelGUID;
                     default:
                         break;
                 }
@@ -156,9 +162,10 @@ class instance_scarlet_monastery : public InstanceMapScript
             ObjectGuid PumpkinShrineGUID;
             ObjectGuid HorsemanGUID;
             ObjectGuid HeadGUID;
-            ObjectGuid MograineGUID;
+			ObjectGuid ThalnosGUID;
+			ObjectGuid KorloffGUID;
+            ObjectGuid DurandGUID;
             ObjectGuid WhitemaneGUID;
-            ObjectGuid VorrelGUID;
 
             GuidSet HorsemanAdds;
         };
